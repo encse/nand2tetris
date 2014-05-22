@@ -5,11 +5,11 @@
 
 
 CHIP And4Way {
-    IN in[4];
+    IN a,b,c,d;
     OUT out;
 
     PARTS:
-    And(a=in[0], b=in[1], out =a01);
-	And(a=in[2], b=in[3], out =a23);
+    And(a=a, b=b, out =a01);
+	And(a=c, b=d, out =a23);
 	And(a=a01, b=a23, out = out);
 }

@@ -12,7 +12,7 @@
  */
 
 CHIP Mux8Way {
-    IN in[8], sel[3];
+    IN a,b,c,d,e,f,g,h, sel[3];
     OUT out;
 
     PARTS:
@@ -21,14 +21,14 @@ CHIP Mux8Way {
 	Not(in = sel[1], out = ns1);
 	Not(in = sel[2], out = ns2);
 	
-	And4Way(in[0]=in[0], in[1]=ns2,    in[2]=ns1,    in[3]=ns0,    out=aT);
-	And4Way(in[0]=in[1], in[1]=ns2,    in[2]=ns1,    in[3]=sel[0], out=bT);
-	And4Way(in[0]=in[2], in[1]=ns2,    in[2]=sel[1], in[3]=ns0,    out=cT);
-	And4Way(in[0]=in[3], in[1]=ns2,    in[2]=sel[1], in[3]=sel[0], out=dT);
-	And4Way(in[0]=in[4], in[1]=sel[2], in[2]=ns1,    in[3]=ns0,    out=eT);
-	And4Way(in[0]=in[5], in[1]=sel[2], in[2]=ns1,    in[3]=sel[0], out=fT);
-	And4Way(in[0]=in[6], in[1]=sel[2], in[2]=sel[1], in[3]=ns0,    out=gT);
-	And4Way(in[0]=in[7], in[1]=sel[2], in[2]=sel[1], in[3]=sel[0], out=hT);
+	And4Way(a=a, b=ns2,    c=ns1,    d=ns0,    out=aT);
+	And4Way(a=b, b=ns2,    c=ns1,    d=sel[0], out=bT);
+	And4Way(a=c, b=ns2,    c=sel[1], d=ns0,    out=cT);
+	And4Way(a=d, b=ns2,    c=sel[1], d=sel[0], out=dT);
+	And4Way(a=e, b=sel[2], c=ns1,    d=ns0,    out=eT);
+	And4Way(a=f, b=sel[2], c=ns1,    d=sel[0], out=fT);
+	And4Way(a=g, b=sel[2], c=sel[1], d=ns0,    out=gT);
+	And4Way(a=h, b=sel[2], c=sel[1], d=sel[0], out=hT);
 	
-	Or8Way(in[0]=aT, in[1]=bT, in[2]=cT, in[3]=dT, in[4]=eT, in[5]=fT, in[6]=gT, in[7]=hT, out = out);
+	Or8Way(a=aT, b=bT, c=cT, d=dT, e=eT, f=fT, g=gT, h=hT, out = out);
 }

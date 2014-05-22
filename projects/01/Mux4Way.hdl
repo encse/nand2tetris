@@ -11,7 +11,7 @@
  */
 
 CHIP Mux4Way {
-    IN in[4], sel[2];
+    IN a,b,c,d, sel[2];
     OUT out;
 
     PARTS:
@@ -19,10 +19,10 @@ CHIP Mux4Way {
 	Not(in = sel[0], out = ns0);
 	Not(in = sel[1], out = ns1);
 	
-	And4Way(in[0] = in[0], in[1]=ns1,     in[2]=ns0,    in[3]= true, out=x);
-	And4Way(in[0] = in[1], in[1]=ns1,     in[2]=sel[0], in[3]= true, out=y);
-	And4Way(in[0] = in[2], in[1]=sel[1],  in[2]=ns0,    in[3]= true, out=z);
-	And4Way(in[0] = in[3], in[1]=sel[1],  in[2]=sel[0], in[3]= true, out=w);
+	And4Way(a = a, b=ns1,     c=ns0,    d= true, out=x);
+	And4Way(a = b, b=ns1,     c=sel[0], d= true, out=y);
+	And4Way(a = c, b=sel[1],  c=ns0,    d= true, out=z);
+	And4Way(a = d, b=sel[1],  c=sel[0], d= true, out=w);
 	
-	Or4Way(in[0]=x, in[1]=y, in[2]=z, in[3]=w, out = out);
+	Or4Way(a=x, b=y, c=z, d=w, out = out);
 }
