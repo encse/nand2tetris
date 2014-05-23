@@ -1,3 +1,27 @@
 /projects/01/*.out
 
 /tools/bin/Hardware Simulator.dat
+
+/projects/02/Add16.out
+/projects/02/And.hdl
+/projects/02/And16.hdl
+/projects/02/And4Way.hdl
+/projects/02/DMux.hdl
+/projects/02/DMux4Way.hdl
+/projects/02/DMux8Way.hdl
+/projects/02/FullAdder.out
+/projects/02/HalfAdder.out
+/projects/02/Inc16.out
+/projects/02/Mux.hdl
+/projects/02/Mux16.hdl
+/projects/02/Mux4Way.hdl
+/projects/02/Mux4Way16.hdl
+/projects/02/Mux8Way.hdl
+/projects/02/Mux8Way16.hdl
+/projects/02/Not.hdl
+/projects/02/Not16.hdl
+/projects/02/Or.hdl
+/projects/02/Or16.hdl
+/projects/02/Or4Way.hdl
+/projects/02/Or8Way.hdl
+/projects/02/Xor.hdl
