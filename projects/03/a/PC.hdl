@@ -16,9 +16,26 @@ CHIP PC {
     OUT out[16];
 
     PARTS:
-    // Put your code here:
+    
+	Or(a = load, b = inc, out = loadOrInc);
+	Or(a = loadOrInc, b = reset, out = regLoad);
+	
+	//sel = 00: regOut
+	//sel = 01: 0 
+	//sel = 10: in
+	//sel = 11: regIncremented
+	
+	//s0: reset | load
+	Or(a = reset, b = load, out = s0);
+	
+	//s1: nReset && (load || inc)
+	Not(in=reset, out = nReset);
+	And(a = nReset, b = loadOrInc, out = s1);
+	
+	Mux4Way16(a = regOut, b = false,  c = regIncremented, d = in, sel[0] = s0, sel[1] = s1, out = regIn);
+	
+	Add16(a= regOut, b[0] = true, out = regIncremented);
+    
+	Register(in = regIn, load = regLoad, out = out, out = regOut);
+		
 }
-
-
-
-
