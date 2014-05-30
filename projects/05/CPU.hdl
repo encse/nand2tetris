@@ -39,5 +39,51 @@ CHIP CPU {
         pc[15];          // address of next instruction
 
     PARTS:
-    // Put your code here:
+
+	//A vagy C utasítás (az instruction felsõ bitje alapján)?
+	And(a = instruction[15], b = true, out = fCStm);
+	Not(in = fCStm, out = fAStm);
+	
+	Not(in = reset, out = notReset);
+
+	//ALU 
+	//az instruction 12-es bitje mondja meg, hogy az aluba az a regiszter értékét, vagy az általa mutatott memóriaterület értékét kell bekötni.
+	Mux16(a = aregisterOut, b = inM, sel = instruction[12], out = aluY);
+	
+	//az alu x lába mindenképp a d regiszter értéke lesz.
+	ALU(y = aluY, x = dregisterIn, 
+	    zx = instruction[11], nx = instruction[10], zy = instruction[9], ny = instruction[8], f = instruction[7], no = instruction[6],
+ 	    zr = aluZr, ng = aluNg, out = aluOut, out = outM);
+	
+	//hova tárolunk?
+	//akkor kell A regisztert beállítani, ha a flag azt monsja, vagy fAStm esetén
+	Or(a = instruction[5], b = fAStm, out = stA);
+	//a másik két helyre csak cstm esetén írunk, ha a flag is azt mondja:
+	And(a = instruction[4], b = fCStm, out = stD);
+	//stM csak akkor igaz ha nem reset
+	And4Way(a = instruction[3], b = fCStm, c=notReset, d=notReset, out = writeM);
+		
+	//kell-e ugrani?
+	Or(a = aluZr, b = aluNg, out = aluPzT);
+	Not(in = aluPzT, out = aluPz);
+	
+	And(a = aluNg,  b = instruction[2], out = fJmpNg);
+	And(a = aluZr,  b = instruction[1], out = fJmpZr);
+	And(a = aluPz,  b = instruction[0], out = fJmpPz);
+	Or4Way(a = fJmpNg, b = fJmpZr, c = fJmpPz, out = fJmpAlu);
+	
+	//csak akkor érdekes, ha fCstm
+	And(a = fJmpAlu, b = fCStm, out = fJmp);
+
+	//A regiszter
+	//A regiszter értéke vagy a bemenetrõl jön (fAStm), vagy az aluból (fCStm)
+	Mux16(a[0..14] = instruction[0..14], b = aluOut, sel = fCStm, out = aregisterIn);
+	ARegister(in = aregisterIn, load = stA, out[0..14] = addressM, out = aregisterOut, out[0..14] = aregisterOut15);
+
+    //D regiszter
+	//D-be az alu kimenetét kötjük de csak akkor állítjuk be, ha stD igaz
+	DRegister(in = aluOut, load = stD, out = dregisterIn);
+
+	//pc: alapból inc, ha reset akkor reset, ha fJmp akkor meg az a regiszter értéke
+	PC(in[0..14] = aregisterOut15, load = fJmp, reset = reset, inc = true, out[0..14] = pc);
 }
