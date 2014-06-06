@@ -4,6 +4,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
+using Cmn.Compiler;
 using JetBrains.Annotations;
 
 namespace Cmn
@@ -33,6 +34,29 @@ namespace Cmn
         public static T ParseKIgnoreCase<T>(string st) where T : struct, IConvertible
         {
             return (T)Enum.Parse(typeof (T), st, true);
+        }
+        
+        public static T KFromMnemonic<T>(string st) where T : struct, IConvertible
+        {
+            foreach (var v in Enum.GetValues(typeof(T)))
+            {
+                var f = typeof(T).GetField(v.ToString());
+                var attributes = (MnemonicAttribute[])f.GetCustomAttributes(typeof(MnemonicAttribute), false);
+                if (attributes.Length > 0 && attributes.Single().st == st)
+                    return (T)v;
+            }
+
+            throw new Exception();
+        }
+
+        public static string ToMnemonic(this Enum e)
+        {
+            var f = e.GetType().GetField(e.ToString());
+            if (f == null)
+                return e.ToString(CultureInfo.InvariantCulture).ToLowerInvariant();
+
+            var attributes = (MnemonicAttribute[])f.GetCustomAttributes(typeof(MnemonicAttribute), false);
+            return attributes.Length > 0 ? attributes[0].st : e.ToString(CultureInfo.InvariantCulture).ToLowerInvariant();
         }
 
         public static IEnumerable<string> ToLinesSkipComments(this string st)

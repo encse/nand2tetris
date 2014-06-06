@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
+using Cmn.Compiler;
 
 namespace Cmn.Asm
 {
@@ -32,15 +33,6 @@ namespace Cmn.Asm
     {
         const string rxCInstr = "((?<dst>[MDA]+)=)?(?<comp>[^;]+)(;(?<jump>[A-Z]*))?$";
 
-        class MnemonicAttribute : Attribute
-        {
-            public string st;
-
-            public MnemonicAttribute(string st)
-            {
-                this.st = st;
-            }
-        }
         static Dictionary<string, int> flagsBystComp = FlagsBystComp(new Dictionary<string, string>
         {
             // comp   a  c1  c2  c3  c4  c5  c6                               

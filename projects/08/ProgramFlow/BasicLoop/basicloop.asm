@@ -1,0 +1,131 @@
+//push Constant 0
+	@0
+	D=A
+	@SP
+	M=M+1
+	A=M-1
+	M=D
+//pop Local 0
+	@LCL
+	D=M
+	@0
+	D=D+A
+	@R13
+	M=D
+	@SP
+	M=M-1
+	A=M
+	D=M
+	@R13
+	A=M
+	M=D
+//label LOOP_START
+(LOOP_START)
+//push Argument 0
+	@ARG
+	D=M
+	@0
+	A=D+A
+	D=M
+	@SP
+	M=M+1
+	A=M-1
+	M=D
+//push Local 0
+	@LCL
+	D=M
+	@0
+	A=D+A
+	D=M
+	@SP
+	M=M+1
+	A=M-1
+	M=D
+//add
+	@SP
+	A=M-1
+	D=M
+	A=A-1
+	M=D+M
+	@SP
+	M=M-1
+//pop Local 0
+	@LCL
+	D=M
+	@0
+	D=D+A
+	@R13
+	M=D
+	@SP
+	M=M-1
+	A=M
+	D=M
+	@R13
+	A=M
+	M=D
+//push Argument 0
+	@ARG
+	D=M
+	@0
+	A=D+A
+	D=M
+	@SP
+	M=M+1
+	A=M-1
+	M=D
+//push Constant 1
+	@1
+	D=A
+	@SP
+	M=M+1
+	A=M-1
+	M=D
+//sub
+	@SP
+	A=M-1
+	D=M
+	A=A-1
+	M=M-D
+	@SP
+	M=M-1
+//pop Argument 0
+	@ARG
+	D=M
+	@0
+	D=D+A
+	@R13
+	M=D
+	@SP
+	M=M-1
+	A=M
+	D=M
+	@R13
+	A=M
+	M=D
+//push Argument 0
+	@ARG
+	D=M
+	@0
+	A=D+A
+	D=M
+	@SP
+	M=M+1
+	A=M-1
+	M=D
+//if-goto LOOP_START
+	@SP
+	M=M-1
+	A=M
+	D=M
+	@LOOP_START
+	D;JNE
+//push Local 0
+	@LCL
+	D=M
+	@0
+	A=D+A
+	D=M
+	@SP
+	M=M+1
+	A=M-1
+	M=D

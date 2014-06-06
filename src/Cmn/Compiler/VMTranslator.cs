@@ -41,8 +41,24 @@ namespace Cmn.Compiler
             {
                 yield return "//" + vmcmd.Unparse();
                         
-                switch (vmcmd.kcmd)
+                switch (vmcmd.Kcmd)
                 {
+                    case Kcmd.Label:
+                        yield return "(" + vmcmd.StLabel + ")";
+                        break;
+                    case Kcmd.Goto:
+                        yield return "@" + vmcmd.StLabel;
+                        yield return "D;JMP";
+                        break;
+                    case Kcmd.IfGoto:
+                        yield return "@SP"; 
+                        yield return "M=M-1"; 
+                        yield return "A=M";
+                        yield return "D=M"; 
+                        
+                        yield return "@" + vmcmd.StLabel;
+                        yield return "D;JNE";
+                        break;
                     case Kcmd.Add:
                     case Kcmd.Sub:
                     case Kcmd.And:
@@ -54,7 +70,7 @@ namespace Cmn.Compiler
 
                         yield return "A=A-1"; //a = sp - 2
 
-                        switch (vmcmd.kcmd)
+                        switch (vmcmd.Kcmd)
                         {
                             case Kcmd.Add:
                                 yield return "M=D+M";  //sp[-2] = sp[-1] + sp[-2]
@@ -79,7 +95,7 @@ namespace Cmn.Compiler
                     {
                         yield return "@SP"; //a = &sp
                         yield return "A=M-1"; //a = sp - 1
-                        if (vmcmd.kcmd == Kcmd.Neg)
+                        if (vmcmd.Kcmd == Kcmd.Neg)
                             yield return "M=-M"; //d = -sp[-1]
                         else
                             yield return "M=!M"; //d = !sp[-1]
@@ -103,7 +119,7 @@ namespace Cmn.Compiler
                         
                         yield return "@" + idTrue;
                         
-                        switch (vmcmd.kcmd)
+                        switch (vmcmd.Kcmd)
                         {   
                             case Kcmd.Eq:
                                 yield return "D;JEQ";
