@@ -21,10 +21,10 @@ namespace NsVmTranslator
             var src = File.ReadAllText(fpatIn);
 
             var fpatOut = fpatIn.Substring(0, fpatIn.Length - ".vm".Length) + ".asm";
-
+            var filn = Path.GetFileName(fpatIn);
             var translator = new VMTranslator();
 
-            File.WriteAllLines(fpatOut, translator.ToAsm(src));
+            File.WriteAllLines(fpatOut, translator.ToAsm(filn, src));
         }
     }
 

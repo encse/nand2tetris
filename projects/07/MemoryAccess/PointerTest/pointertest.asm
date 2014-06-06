@@ -1,0 +1,148 @@
+//Push Constant 3030
+	@3030
+	D=A
+	@SP
+	M=M+1
+	A=M-1
+	M=D
+//Pop Pointer 0
+	@THIS
+	D=A
+	@0
+	D=D+A
+	@R13
+	M=D
+	@SP
+	M=M-1
+	A=M
+	D=M
+	@R13
+	A=M
+	M=D
+//Push Constant 3040
+	@3040
+	D=A
+	@SP
+	M=M+1
+	A=M-1
+	M=D
+//Pop Pointer 1
+	@THIS
+	D=A
+	@1
+	D=D+A
+	@R13
+	M=D
+	@SP
+	M=M-1
+	A=M
+	D=M
+	@R13
+	A=M
+	M=D
+//Push Constant 32
+	@32
+	D=A
+	@SP
+	M=M+1
+	A=M-1
+	M=D
+//Pop This 2
+	@THIS
+	D=M
+	@2
+	D=D+A
+	@R13
+	M=D
+	@SP
+	M=M-1
+	A=M
+	D=M
+	@R13
+	A=M
+	M=D
+//Push Constant 46
+	@46
+	D=A
+	@SP
+	M=M+1
+	A=M-1
+	M=D
+//Pop That 6
+	@THAT
+	D=M
+	@6
+	D=D+A
+	@R13
+	M=D
+	@SP
+	M=M-1
+	A=M
+	D=M
+	@R13
+	A=M
+	M=D
+//Push Pointer 0
+	@THIS
+	D=A
+	@0
+	A=D+A
+	D=M
+	@SP
+	M=M+1
+	A=M-1
+	M=D
+//Push Pointer 1
+	@THIS
+	D=A
+	@1
+	A=D+A
+	D=M
+	@SP
+	M=M+1
+	A=M-1
+	M=D
+//Add
+	@SP
+	A=M-1
+	D=M
+	A=A-1
+	M=D+M
+	@SP
+	M=M-1
+//Push This 2
+	@THIS
+	D=M
+	@2
+	A=D+A
+	D=M
+	@SP
+	M=M+1
+	A=M-1
+	M=D
+//Sub
+	@SP
+	A=M-1
+	D=M
+	A=A-1
+	M=M-D
+	@SP
+	M=M-1
+//Push That 6
+	@THAT
+	D=M
+	@6
+	A=D+A
+	D=M
+	@SP
+	M=M+1
+	A=M-1
+	M=D
+//Add
+	@SP
+	A=M-1
+	D=M
+	A=A-1
+	M=D+M
+	@SP
+	M=M-1

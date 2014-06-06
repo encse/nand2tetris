@@ -19,9 +19,9 @@ namespace Cmn.Compiler
             }
         }
 
-        public IEnumerable<string> ToAsm(string src)
+        public IEnumerable<string> ToAsm(string filn, string src)
         {
-            return Indent(ToAsmI(src));
+            return Indent(ToAsmI(filn, src));
         }
         public IEnumerable<string> Indent(IEnumerable<string> src)
         {
@@ -34,7 +34,7 @@ namespace Cmn.Compiler
             }
         }
 
-        public IEnumerable<string> ToAsmI(string src)
+        private IEnumerable<string> ToAsmI(string filn, string src)
         {
             var idgen = new Idgen();
             foreach (var vmcmd in EnvmcdParse(src))
@@ -135,24 +135,131 @@ namespace Cmn.Compiler
                             case Ksegment.Constant:
                                 yield return "@" + vmcmd.I;
                                 yield return "D=A"; //d = vmcmd.I
-
-                                yield return "@SP"; //a = &sp
-                                yield return "A=M"; //a = sp
-                                yield return "M=D"; //*sp = d
-
-                                yield return "D=A+1"; //d = sp + 1
-                                yield return "@SP";   //a = &sp
-                                yield return "M=D";   //sp = sp + 1
+                                break;
+                            case Ksegment.Local:
+                                yield return "@LCL";
+                                yield return "D=M"; //d = vmcmd.I
+                                yield return "@" + vmcmd.I;
+                                yield return "A=D+A"; //d = vmcmd.I
+                                yield return "D=M"; 
+                                break;
+                            case Ksegment.Argument:
+                                yield return "@ARG";
+                                yield return "D=M"; //d = vmcmd.I
+                                yield return "@" + vmcmd.I;
+                                yield return "A=D+A"; //d = vmcmd.I
+                                yield return "D=M"; 
+                                break;
+                            case Ksegment.This:
+                                yield return "@THIS";
+                                yield return "D=M"; //d = vmcmd.I
+                                yield return "@" + vmcmd.I;
+                                yield return "A=D+A"; //d = vmcmd.I
+                                yield return "D=M"; 
+                                break;
+                            case Ksegment.That:
+                                yield return "@THAT";
+                                yield return "D=M"; //d = vmcmd.I
+                                yield return "@" + vmcmd.I;
+                                yield return "A=D+A"; //d = vmcmd.I
+                                yield return "D=M"; 
+                                break;
+                            case Ksegment.Temp:
+                                yield return "@R5";
+                                yield return "D=A"; //d = vmcmd.I
+                                yield return "@" + vmcmd.I;
+                                yield return "A=D+A"; //d = vmcmd.I
+                                yield return "D=M";
+                                break;
+                            case Ksegment.Pointer:
+                                yield return "@THIS";
+                                yield return "D=A"; //d = vmcmd.I
+                                yield return "@" + vmcmd.I;
+                                yield return "A=D+A"; //d = vmcmd.I
+                                yield return "D=M";
+                                break;
+                            case Ksegment.Static:
+                                yield return StaticAddress(filn, vmcmd.I);
+                                yield return "D=M";
                                 break;
                             default:
                                 throw new ArgumentOutOfRangeException();
                         }
+
+                        yield return "@SP"; //a = &sp
+                        yield return "M=M+1"; //sp++
+                        yield return "A=M-1"; //a = sp-1
+                        yield return "M=D"; //sp[-1] = d
+
+                        break;
+                    }
+                    case Kcmd.Pop:
+                    {
+                        switch (vmcmd.Ksegment)
+                        {
+                            case Ksegment.Local: 
+                                yield return "@LCL"; 
+                                yield return "D=M"; 
+                                break;
+                            case Ksegment.Argument: 
+                                yield return "@ARG";
+                                yield return "D=M"; 
+                                break;
+                            case Ksegment.This: 
+                                yield return "@THIS";
+                                yield return "D=M"; 
+                                break;
+                            case Ksegment.That: 
+                                yield return "@THAT"; 
+                                yield return "D=M"; 
+                                break;
+                            case Ksegment.Temp: 
+                                yield return "@R5"; 
+                                yield return "D=A"; 
+                                break;
+                            case Ksegment.Pointer:
+                                yield return "@THIS";
+                                yield return "D=A";
+                                break;
+                            case Ksegment.Static:
+                                yield return StaticAddress(filn, vmcmd.I);
+                                yield return "D=A";
+                                break;
+                            default:
+                                throw new ArgumentOutOfRangeException();
+                        }
+
+
+                        if (vmcmd.Ksegment != Ksegment.Static)
+                        {
+                            yield return "@" + vmcmd.I;
+                            yield return "D=D+A";
+                        }
+                        
+                        yield return "@R13";
+                        yield return "M=D";
+                        
+
+                        yield return "@SP"; //a = &sp
+                        yield return "M=M-1"; //sp--
+                        yield return "A=M"; //a = sp
+                        yield return "D=M"; //d = sp[0]
+
+                        yield return "@R13";
+                        yield return "A=M";
+                        yield return "M=D"; 
+                      
                         break;
                     }
                     default:
                         throw new ArgumentOutOfRangeException();
                 }
             }
+        }
+
+        private string StaticAddress(string filn, int p1)
+        {
+            return "@" + filn + "." + p1;
         }
 
         private IEnumerable<Vmcmd> EnvmcdParse(string src)

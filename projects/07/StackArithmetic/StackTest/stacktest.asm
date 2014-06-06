@@ -1,0 +1,354 @@
+//Push Constant 17
+	@17
+	D=A
+	@SP
+	M=M+1
+	A=M-1
+	M=D
+//Push Constant 17
+	@17
+	D=A
+	@SP
+	M=M+1
+	A=M-1
+	M=D
+//Eq
+	@SP
+	A=M-1
+	D=M
+	A=A-1
+	D=M-D
+	@l0
+	D;JEQ
+	@l1
+	D=0;JEQ
+(l0)
+	D=-1
+(l1)
+	@SP
+	M=M-1
+	A=M-1
+	M=D
+//Push Constant 17
+	@17
+	D=A
+	@SP
+	M=M+1
+	A=M-1
+	M=D
+//Push Constant 16
+	@16
+	D=A
+	@SP
+	M=M+1
+	A=M-1
+	M=D
+//Eq
+	@SP
+	A=M-1
+	D=M
+	A=A-1
+	D=M-D
+	@l2
+	D;JEQ
+	@l3
+	D=0;JEQ
+(l2)
+	D=-1
+(l3)
+	@SP
+	M=M-1
+	A=M-1
+	M=D
+//Push Constant 16
+	@16
+	D=A
+	@SP
+	M=M+1
+	A=M-1
+	M=D
+//Push Constant 17
+	@17
+	D=A
+	@SP
+	M=M+1
+	A=M-1
+	M=D
+//Eq
+	@SP
+	A=M-1
+	D=M
+	A=A-1
+	D=M-D
+	@l4
+	D;JEQ
+	@l5
+	D=0;JEQ
+(l4)
+	D=-1
+(l5)
+	@SP
+	M=M-1
+	A=M-1
+	M=D
+//Push Constant 892
+	@892
+	D=A
+	@SP
+	M=M+1
+	A=M-1
+	M=D
+//Push Constant 891
+	@891
+	D=A
+	@SP
+	M=M+1
+	A=M-1
+	M=D
+//Lt
+	@SP
+	A=M-1
+	D=M
+	A=A-1
+	D=M-D
+	@l6
+	D;JLT
+	@l7
+	D=0;JEQ
+(l6)
+	D=-1
+(l7)
+	@SP
+	M=M-1
+	A=M-1
+	M=D
+//Push Constant 891
+	@891
+	D=A
+	@SP
+	M=M+1
+	A=M-1
+	M=D
+//Push Constant 892
+	@892
+	D=A
+	@SP
+	M=M+1
+	A=M-1
+	M=D
+//Lt
+	@SP
+	A=M-1
+	D=M
+	A=A-1
+	D=M-D
+	@l8
+	D;JLT
+	@l9
+	D=0;JEQ
+(l8)
+	D=-1
+(l9)
+	@SP
+	M=M-1
+	A=M-1
+	M=D
+//Push Constant 891
+	@891
+	D=A
+	@SP
+	M=M+1
+	A=M-1
+	M=D
+//Push Constant 891
+	@891
+	D=A
+	@SP
+	M=M+1
+	A=M-1
+	M=D
+//Lt
+	@SP
+	A=M-1
+	D=M
+	A=A-1
+	D=M-D
+	@l10
+	D;JLT
+	@l11
+	D=0;JEQ
+(l10)
+	D=-1
+(l11)
+	@SP
+	M=M-1
+	A=M-1
+	M=D
+//Push Constant 32767
+	@32767
+	D=A
+	@SP
+	M=M+1
+	A=M-1
+	M=D
+//Push Constant 32766
+	@32766
+	D=A
+	@SP
+	M=M+1
+	A=M-1
+	M=D
+//Gt
+	@SP
+	A=M-1
+	D=M
+	A=A-1
+	D=M-D
+	@l12
+	D;JGT
+	@l13
+	D=0;JEQ
+(l12)
+	D=-1
+(l13)
+	@SP
+	M=M-1
+	A=M-1
+	M=D
+//Push Constant 32766
+	@32766
+	D=A
+	@SP
+	M=M+1
+	A=M-1
+	M=D
+//Push Constant 32767
+	@32767
+	D=A
+	@SP
+	M=M+1
+	A=M-1
+	M=D
+//Gt
+	@SP
+	A=M-1
+	D=M
+	A=A-1
+	D=M-D
+	@l14
+	D;JGT
+	@l15
+	D=0;JEQ
+(l14)
+	D=-1
+(l15)
+	@SP
+	M=M-1
+	A=M-1
+	M=D
+//Push Constant 32766
+	@32766
+	D=A
+	@SP
+	M=M+1
+	A=M-1
+	M=D
+//Push Constant 32766
+	@32766
+	D=A
+	@SP
+	M=M+1
+	A=M-1
+	M=D
+//Gt
+	@SP
+	A=M-1
+	D=M
+	A=A-1
+	D=M-D
+	@l16
+	D;JGT
+	@l17
+	D=0;JEQ
+(l16)
+	D=-1
+(l17)
+	@SP
+	M=M-1
+	A=M-1
+	M=D
+//Push Constant 57
+	@57
+	D=A
+	@SP
+	M=M+1
+	A=M-1
+	M=D
+//Push Constant 31
+	@31
+	D=A
+	@SP
+	M=M+1
+	A=M-1
+	M=D
+//Push Constant 53
+	@53
+	D=A
+	@SP
+	M=M+1
+	A=M-1
+	M=D
+//Add
+	@SP
+	A=M-1
+	D=M
+	A=A-1
+	M=D+M
+	@SP
+	M=M-1
+//Push Constant 112
+	@112
+	D=A
+	@SP
+	M=M+1
+	A=M-1
+	M=D
+//Sub
+	@SP
+	A=M-1
+	D=M
+	A=A-1
+	M=M-D
+	@SP
+	M=M-1
+//Neg
+	@SP
+	A=M-1
+	M=-M
+//And
+	@SP
+	A=M-1
+	D=M
+	A=A-1
+	M=D&M
+	@SP
+	M=M-1
+//Push Constant 82
+	@82
+	D=A
+	@SP
+	M=M+1
+	A=M-1
+	M=D
+//Or
+	@SP
+	A=M-1
+	D=M
+	A=A-1
+	M=D|M
+	@SP
+	M=M-1
+//Not
+	@SP
+	A=M-1
+	M=!M

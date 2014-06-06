@@ -1,0 +1,247 @@
+//Push Constant 10
+	@10
+	D=A
+	@SP
+	M=M+1
+	A=M-1
+	M=D
+//Pop Local 0
+	@LCL
+	D=M
+	@0
+	D=D+A
+	@R13
+	M=D
+	@SP
+	M=M-1
+	A=M
+	D=M
+	@R13
+	A=M
+	M=D
+//Push Constant 21
+	@21
+	D=A
+	@SP
+	M=M+1
+	A=M-1
+	M=D
+//Push Constant 22
+	@22
+	D=A
+	@SP
+	M=M+1
+	A=M-1
+	M=D
+//Pop Argument 2
+	@ARG
+	D=M
+	@2
+	D=D+A
+	@R13
+	M=D
+	@SP
+	M=M-1
+	A=M
+	D=M
+	@R13
+	A=M
+	M=D
+//Pop Argument 1
+	@ARG
+	D=M
+	@1
+	D=D+A
+	@R13
+	M=D
+	@SP
+	M=M-1
+	A=M
+	D=M
+	@R13
+	A=M
+	M=D
+//Push Constant 36
+	@36
+	D=A
+	@SP
+	M=M+1
+	A=M-1
+	M=D
+//Pop This 6
+	@THIS
+	D=M
+	@6
+	D=D+A
+	@R13
+	M=D
+	@SP
+	M=M-1
+	A=M
+	D=M
+	@R13
+	A=M
+	M=D
+//Push Constant 42
+	@42
+	D=A
+	@SP
+	M=M+1
+	A=M-1
+	M=D
+//Push Constant 45
+	@45
+	D=A
+	@SP
+	M=M+1
+	A=M-1
+	M=D
+//Pop That 5
+	@THAT
+	D=M
+	@5
+	D=D+A
+	@R13
+	M=D
+	@SP
+	M=M-1
+	A=M
+	D=M
+	@R13
+	A=M
+	M=D
+//Pop That 2
+	@THAT
+	D=M
+	@2
+	D=D+A
+	@R13
+	M=D
+	@SP
+	M=M-1
+	A=M
+	D=M
+	@R13
+	A=M
+	M=D
+//Push Constant 510
+	@510
+	D=A
+	@SP
+	M=M+1
+	A=M-1
+	M=D
+//Pop Temp 6
+	@R5
+	D=A
+	@6
+	D=D+A
+	@R13
+	M=D
+	@SP
+	M=M-1
+	A=M
+	D=M
+	@R13
+	A=M
+	M=D
+//Push Local 0
+	@LCL
+	D=M
+	@0
+	A=D+A
+	D=M
+	@SP
+	M=M+1
+	A=M-1
+	M=D
+//Push That 5
+	@THAT
+	D=M
+	@5
+	A=D+A
+	D=M
+	@SP
+	M=M+1
+	A=M-1
+	M=D
+//Add
+	@SP
+	A=M-1
+	D=M
+	A=A-1
+	M=D+M
+	@SP
+	M=M-1
+//Push Argument 1
+	@ARG
+	D=M
+	@1
+	A=D+A
+	D=M
+	@SP
+	M=M+1
+	A=M-1
+	M=D
+//Sub
+	@SP
+	A=M-1
+	D=M
+	A=A-1
+	M=M-D
+	@SP
+	M=M-1
+//Push This 6
+	@THIS
+	D=M
+	@6
+	A=D+A
+	D=M
+	@SP
+	M=M+1
+	A=M-1
+	M=D
+//Push This 6
+	@THIS
+	D=M
+	@6
+	A=D+A
+	D=M
+	@SP
+	M=M+1
+	A=M-1
+	M=D
+//Add
+	@SP
+	A=M-1
+	D=M
+	A=A-1
+	M=D+M
+	@SP
+	M=M-1
+//Sub
+	@SP
+	A=M-1
+	D=M
+	A=A-1
+	M=M-D
+	@SP
+	M=M-1
+//Push Temp 6
+	@R5
+	D=A
+	@6
+	A=D+A
+	D=M
+	@SP
+	M=M+1
+	A=M-1
+	M=D
+//Add
+	@SP
+	A=M-1
+	D=M
+	A=A-1
+	M=D+M
+	@SP
+	M=M-1
