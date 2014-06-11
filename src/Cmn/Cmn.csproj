@@ -48,10 +48,13 @@
     <Compile Include="Asm\AInstructionWithSymbol.cs" />
     <Compile Include="Asm\CInstruction.cs" />
     <Compile Include="Asm\Instruction.cs" />
+    <Compile Include="Compiler\JackParser.cs" />
+    <Compile Include="Compiler\JackTokenizer.cs" />
     <Compile Include="Compiler\MnemonicAttribute.cs" />
     <Compile Include="Compiler\Assembler.cs" />
     <Compile Include="Compiler\VMTranslator.cs" />
     <Compile Include="JetBrainsAnnotations.cs" />
+    <Compile Include="Compiler\AstNode.cs" />
     <Compile Include="U.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Vm\Vmcmd.cs" />

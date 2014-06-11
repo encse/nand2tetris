@@ -137,6 +137,25 @@ namespace Cmn
             return String.Join(stSep, enst.ToArray());
         }
 
+        public static bool FIn<T>(this T t, params T[] ent)
+        {
+            return ent.Contains(t);
+        }
+
+
+        public static IEnumerable<T> EnCons<T>(this T tHead)
+        {
+            yield return tHead;
+        }
+
+        public static IEnumerable<T> EnCons<T>(this T tHead, IEnumerable<T> entTail)
+        {
+            yield return tHead;
+            foreach (var tTail in entTail)
+            {
+                yield return tTail;
+            }
+        }
     }
 
 }

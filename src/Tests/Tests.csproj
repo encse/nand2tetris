@@ -47,6 +47,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ParserTests.cs" />
     <Compile Include="AssemblerTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -60,6 +61,13 @@
     <EmbeddedResource Include="resources\asm\PongL.hack" />
     <EmbeddedResource Include="resources\asm\Rect.hack" />
     <EmbeddedResource Include="resources\asm\RectL.hack" />
+    <EmbeddedResource Include="resources\parser\array\Main.jack" />
+    <EmbeddedResource Include="resources\parser\expressionlessSquare\Main.jack" />
+    <EmbeddedResource Include="resources\parser\expressionlessSquare\Square.jack" />
+    <EmbeddedResource Include="resources\parser\expressionlessSquare\SquareGame.jack" />
+    <EmbeddedResource Include="resources\parser\square\Main.jack" />
+    <EmbeddedResource Include="resources\parser\square\Square.jack" />
+    <EmbeddedResource Include="resources\parser\square\SquareGame.jack" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="resources\asm\Add.asm" />
@@ -75,6 +83,17 @@
       <Project>{4EFC8374-D582-489B-89D7-E321F34DE28B}</Project>
       <Name>Cmn</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="resources\parser\array\Main.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="resources\parser\expressionlessSquare\Main.xml" />
+    <EmbeddedResource Include="resources\parser\expressionlessSquare\Square.xml" />
+    <EmbeddedResource Include="resources\parser\expressionlessSquare\SquareGame.xml" />
+    <EmbeddedResource Include="resources\parser\square\Main.xml" />
+    <EmbeddedResource Include="resources\parser\square\Square.xml" />
+    <EmbeddedResource Include="resources\parser\square\SquareGame.xml" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
