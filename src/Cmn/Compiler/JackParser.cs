@@ -1,366 +1,532 @@
 using System;
-using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Collections.Generic;
+using System.Runtime.Remoting.Proxies;
 
 namespace Cmn.Compiler
 {
     public class JackParser
     {
-        public NonTerminal Parse(string st)
-        {
-            var p = Class;
+        private List<Token> rgtoken;
+        private int itoken;
 
-            var rgtoken = new JackTokenizer().Entoken(st).ToList();
-            var res = p.Parse(rgtoken);
-            if (res.FError)
-                throw new Exception("expected " + res.HlmtokenExpected.StJoin(", ", x=> x) + " found " + 
-                                    res.Rgtoken.Concat(new Token(Ktoken.Eof, "end of file").EnCons()).First().St);
+        private Token tokenCur
+        {
+            get
+            {
+                return itoken < rgtoken.Count ? rgtoken[itoken] : new Token(Ktoken.Eof, null, -1, -1);
+            }
+        }
+
+        private void NextToken()
+        {
+            itoken++;
+        }
+
+        private bool FCurrent(Ktoken ktoken)
+        {
+            return rgtoken[itoken].Ktoken == ktoken;
+        }
+
+        private bool Accept(Ktoken ktoken)
+        {
+            if (FCurrent(ktoken))
+            {
+                NextToken();
+                return true;
+            }
+            return false;
+        }
+
+        private void Expected(params Ktoken[] ktokens)
+        {
+            throw new Erparse(tokenCur.Iline, tokenCur.Icol, "Expecting " + ktokens.StJoin(", ", x => x.ToString()) + " found " + tokenCur);
+        }
+
+        private void Error(string s)
+        {
+            throw new Erparse(tokenCur.Iline, tokenCur.Icol, s);
+        }
+        private Token Expect(params Ktoken[] rgktoken)
+        {
+            if (rgktoken.All(ktoken => !FCurrent(ktoken)))
+                Expected(rgktoken);
+
+            var token = tokenCur;
+            NextToken();
+            return token;
+        }
+
+        public AstNode Parse(string st)
+        {
+            var lexer = new JackLexer();
+            rgtoken = lexer.Entoken(st).ToList();
+            itoken = 0;
+            return ParseClass();
+        }
+
+        private AstClass ParseClass()
+        {
+            var _class = new AstClass();
+            Expect(Ktoken.Class);
+
+            _class.StName = Expect(Ktoken.Id).St;
+
+            Expect(Ktoken.Lbrace);
+
+            _class.rgclassDecl = ParseRgClassDecl().ToArray();
+            _class.rgsubroutine = ParseRgSubroutine().ToArray();
             
-            return (NonTerminal)res.Ennode.Single();
+            Expect(Ktoken.Rbrace);
+
+            return _class;
         }
 
-        private class Result
+        private IEnumerable<AstSubroutine> ParseRgSubroutine()
         {
-            public readonly IEnumerable<AstNode> Ennode;
-            public readonly List<Token> Rgtoken;
-            public readonly HashSet<string> HlmtokenExpected;
-            public bool FError{get { return Ennode == null; }}
-
-            public Result(AstNode ennode, List<Token> rgtoken, HashSet<string> hlmtokenExpected)
-                : this(ennode.EnCons(), rgtoken, hlmtokenExpected)
+            while (FCurrent(Ktoken.Constructor) || FCurrent(Ktoken.Function) || FCurrent(Ktoken.Method))
             {
+                var subroutine = new AstSubroutine();
+
+                subroutine.Ksubroutine = 
+                    FCurrent(Ktoken.Constructor) ? Ksubroutine.Constructor :
+                    FCurrent(Ktoken.Function) ? Ksubroutine.Function : 
+                                                Ksubroutine.Method;
                 
-            }
-            public Result(IEnumerable<AstNode> ennode, List<Token> rgtoken, HashSet<string> hlmtokenExpected)
-            {
-                Ennode = ennode;
-                Rgtoken = rgtoken;
-                HlmtokenExpected = hlmtokenExpected;
-            }
+                NextToken();
 
-            public static Result Error(List<Token> rgtoken, string tokenExpected)
-            {
-                return new Result((IEnumerable<AstNode>)null, rgtoken, new HashSet<string> { tokenExpected });
-            }
+                subroutine.Type = Accept(Ktoken.Void) ? new AstType {Ktype = Ktype.Void, stType = "void"} : ParseType();
 
-            public static Result Error(List<Token> rgtoken, HashSet<string> hlmtokenExpected)
-            {
-                return new Result((IEnumerable<AstNode>)null, rgtoken, hlmtokenExpected);
+                subroutine.StName = Expect(Ktoken.Id).St;
+                subroutine.RgParam = ParseParamDefList().ToArray();
+
+                Expect(Ktoken.Lbrace);
+                subroutine.RgVarDecl = ParseVarDeclList().ToArray();
+                subroutine.Body = ParseStatementList().ToArray();
+                Expect(Ktoken.Rbrace);
+
+                yield return subroutine;
             }
         }
 
-        private delegate Result Dgparse(List<Token> rgtoken);
 
-        class Parser
+        private IEnumerable<AstStm> ParseStatementList()
         {
-            public Dgparse dg;
-
-            public Parser(Dgparse dg)
+            while (!FCurrent(Ktoken.Rbrace))
             {
-                this.dg = dg;
-            }
-
-            public Result Parse(List<Token> rgtoken)
-            {
-                return dg(rgtoken);
+                if (FCurrent(Ktoken.Let))
+                    yield return ParseLet();
+                else if (FCurrent(Ktoken.Do))
+                    yield return ParseDo();
+                else if (FCurrent(Ktoken.While))
+                    yield return ParseWhile();
+                else if (FCurrent(Ktoken.If))
+                    yield return ParseIf();
+                else if (FCurrent(Ktoken.Return))
+                    yield return ParseReturn();
             }
         }
 
-        private readonly Symbol Class             = new Symbol(KnonTerminal.Class);
-        private readonly Symbol ClassVarDecl      = new Symbol(KnonTerminal.ClassVarDecl);
-        private readonly Symbol Type              = new Symbol(KnonTerminal.Type);
-        private readonly Symbol SubroutineDecl    = new Symbol(KnonTerminal.SubroutineDecl);
-        private readonly Symbol SubroutineBody    = new Symbol(KnonTerminal.SubroutineBody);
-        private readonly Symbol Statements        = new Symbol(KnonTerminal.Statements);
-        private readonly Symbol Statement         = new Symbol(KnonTerminal.Statement);
-        private readonly Symbol IfStatement       = new Symbol(KnonTerminal.IfStatement);
-        private readonly Symbol WhileStatement    = new Symbol(KnonTerminal.WhileStatement);
-        private readonly Symbol DoStatement       = new Symbol(KnonTerminal.DoStatement);
-        private readonly Symbol ReturnStatement   = new Symbol(KnonTerminal.ReturnStatement);
-        private readonly Symbol SubroutineCall    = new Symbol(KnonTerminal.SubroutineCall);
-        private readonly Symbol ExpressionList    = new Symbol(KnonTerminal.ExpressionList);
-        private readonly Symbol Expression        = new Symbol(KnonTerminal.Expression);
-        private readonly Symbol Term              = new Symbol(KnonTerminal.Term);
-        private readonly Symbol Op                = new Symbol(KnonTerminal.Op);
-        private readonly Symbol UnaryOp           = new Symbol(KnonTerminal.UnaryOp);
-        private readonly Symbol LetStatement      = new Symbol(KnonTerminal.LetStatement);
-        private readonly Symbol VarDecl           = new Symbol(KnonTerminal.VarDecl);
-        private readonly Symbol ParameterList     = new Symbol(KnonTerminal.ParameterList);
-
-        class Symbol : Parser
+        private AstStm ParseWhile()
         {
-            private KnonTerminal k;
+            Expect(Ktoken.While);
+            Expect(Ktoken.Lparen);
+            var exprCond = ParseExpr();
+            Expect(Ktoken.Rparen); 
+            Expect(Ktoken.Lbrace);
+            var rgstm = ParseStatementList().ToArray();
+            Expect(Ktoken.Rbrace);
 
-            public Parser Parser
-            {
-                set
-                {
-                    dg = rgtoken =>
-                    {
-                        var res = value.dg(rgtoken);
-                        if (res.FError)
-                            return res;
-
-                        return new Result(new NonTerminal(k, res.Ennode.ToArray()), res.Rgtoken, res.HlmtokenExpected);
-                    };
-                }
-            }
-
-            public Symbol(KnonTerminal k) : base(null)
-            {
-                this.k =k;
-            }
+            return new AstWhile {exprCond = exprCond, rgstm = rgstm};
         }
 
-        public JackParser()
+        private AstStm ParseIf()
         {
-            Class.Parser = Seq(
-                Keyword("class"),
-                Id(),
-                Terminal('{'),
-                Rep(ClassVarDecl),
-                Rep(SubroutineDecl),
-                Terminal('}')
-                );
+            Expect(Ktoken.If);
+            Expect(Ktoken.Lparen);
+            var exprCond = ParseExpr();
+            Expect(Ktoken.Rparen);
+            Expect(Ktoken.Lbrace);
+            var rgstm = ParseStatementList().ToArray();
+            Expect(Ktoken.Rbrace);
 
-            ClassVarDecl.Parser = Seq(
-                Alt(Keyword("static"), Keyword("field")),
-                Type,
-                Id(),
-                Rep(Terminal(','), Id()),
-                Terminal(';'));
+            AstStm[] rgstmElse = null;
 
-            Type.Parser = Alt(Keyword("int"), Keyword("char"), Keyword("boolean"), Id());
+            if (Accept(Ktoken.Else))
+            {
+                Expect(Ktoken.Lbrace);
+                rgstmElse = ParseStatementList().ToArray();
+                Expect(Ktoken.Rbrace);
+            }
 
-            SubroutineDecl.Parser = Seq(
-                Alt(Keyword("constructor"), Keyword("function"), Keyword("method")),
-                Alt(Keyword("void"), Type),
-                Id(),
-                Terminal('('),
-                ParameterList,
-                Terminal(')'),
-                SubroutineBody);
-
-            SubroutineBody.Parser = Seq(
-                Terminal('{'),
-                Rep(VarDecl),
-                Statements,
-                Terminal('}'));
-
-            Statements.Parser = Rep(Statement);
-
-            IfStatement.Parser = Seq(
-                Keyword("if"),
-                Terminal('('),
-                Expression,
-                Terminal(')'),
-                Terminal('{'),
-                Statements,
-                Terminal('}'),
-                Opt(
-                    Keyword("else"),
-                    Terminal('{'),
-                    Statements,
-                    Terminal('}')
-                    ));
-
-            WhileStatement.Parser = Seq(
-                Keyword("while"),
-                Terminal('('),
-                Expression,
-                Terminal(')'),
-                Terminal('{'),
-                Statements,
-                Terminal('}'));
-
-            DoStatement.Parser = Seq(
-                Keyword("do"),
-                SubroutineCall,
-                Terminal(';'));
-
-            ReturnStatement.Parser = Seq(
-                Keyword("return"),
-                Opt(Expression),
-                Terminal(';'));
-
-            LetStatement.Parser = Seq(
-                Keyword("let"),
-                Id(),
-                Opt(
-                    Terminal('['),
-                    Expression,
-                    Terminal(']')
-                    ),
-                Terminal('='),
-                Expression,
-                Terminal(';'));
-
-            Statement.Parser =
-                Alt(LetStatement, IfStatement, WhileStatement, DoStatement, ReturnStatement);
-
-            SubroutineCall.Parser =
-                Alt(
-                    Seq(
-                        Id(),
-                        Terminal('('),
-                        ExpressionList,
-                        Terminal(')')
-                        ),
-                    Seq(
-                        Id(),
-                        Terminal('.'),
-                        Id(),
-                        Terminal('('),
-                        ExpressionList,
-                        Terminal(')')
-                        )
-                    );
-
-            ExpressionList.Parser = 
-                Opt(Expression,Rep(Terminal(','), Expression));
-
-            Expression.Parser =
-                Seq(
-                    Term,
-                    Rep(Op, Term));
-
-            Term.Parser = Alt(
-                SubroutineCall,
-                Int(),
-                String(),
-                Keyword(),
-                Seq(Id(), Terminal('['), Expression, Terminal(']')),
-                Seq(Terminal('('), Expression, Terminal(')')),
-                Id(),
-                Seq(UnaryOp, Term));
-
-            Op.Parser = Alt(Terminal('+'), Terminal('-'), Terminal('*'), Terminal('/'), Terminal('&'), Terminal('|'), Terminal('<'), Terminal('>'), Terminal('='));
-
-            UnaryOp.Parser = Alt(Terminal('~'), Terminal('-'));
-
-            VarDecl.Parser = Seq(
-                Keyword("var"),
-                Type,
-                Id(),
-                Rep(Terminal(','), Id()),
-                Terminal(';'));
-
-            ParameterList.Parser = Opt(Type, Id(), Rep(Terminal(','), Type, Id()));
+            return new AstIf { exprCond = exprCond, rgstm = rgstm.ToArray(), rgstmElse = rgstmElse};
         }
+        private AstLet ParseLet()
+        {
+            Expect(Ktoken.Let);
+            var exprLeft = ParseRef();
+            Expect(Ktoken.Eq);
+            var exprRight = ParseExpr();
+            Expect(Ktoken.Semicolon);
+
+            return new AstLet
+            {
+                exprLeft = exprLeft,
+                exprRight = exprRight,
+            };
+        }
+
+        private AstDo ParseDo()
+        {
+            Expect(Ktoken.Do);
+            var expCall = ParseCall();
+            Expect(Ktoken.Semicolon);
+
+            return new AstDo { exprCall = expCall };
+        }
+
+        private AstCall ParseCall()
+        {
+            var astExpr = ParseExpr();
+            if (!(astExpr is AstCall))
+                Error("Expected function call found "+astExpr);
+
+            return (AstCall)astExpr;
+        }
+
         
-        private Parser Alt(params Parser[] rgparser)
-        {
-            return new Parser(rgtoken =>
-            {
-                var hmlTokenExpected = new HashSet<string>();
 
-                foreach (var parser in rgparser)
+        private AstReturn ParseReturn()
+        {
+            Expect(Ktoken.Return);
+            if (Accept(Ktoken.Semicolon))
+                return new AstReturn();
+
+            var expr = ParseExpr();
+            Expect(Ktoken.Semicolon);
+
+            return new AstReturn { expr = expr};
+        }
+
+        private AstExpr ParseExpr()
+        {
+            var term = ParseTerm();
+
+            if (Accept(Ktoken.Plus)) return new AstBinOp {KBinop = KBinop.Plus, exprLeft = term, exprRight = ParseExpr()};
+            if (Accept(Ktoken.Minus)) return new AstBinOp {KBinop = KBinop.Minus, exprLeft = term, exprRight = ParseExpr()};
+            if (Accept(Ktoken.Asterix)) return new AstBinOp {KBinop = KBinop.Mul, exprLeft = term, exprRight = ParseExpr()};
+            if (Accept(Ktoken.Slash)) return new AstBinOp {KBinop = KBinop.Div, exprLeft = term, exprRight = ParseExpr()};
+            if (Accept(Ktoken.Or)) return new AstBinOp {KBinop = KBinop.Or, exprLeft = term, exprRight = ParseExpr()};
+            if (Accept(Ktoken.And)) return new AstBinOp {KBinop = KBinop.And, exprLeft = term, exprRight = ParseExpr()};
+            if (Accept(Ktoken.Eq)) return new AstBinOp {KBinop = KBinop.Eq, exprLeft = term, exprRight = ParseExpr()};
+            if (Accept(Ktoken.Gt)) return new AstBinOp {KBinop = KBinop.Gt, exprLeft = term, exprRight = ParseExpr()};
+            if (Accept(Ktoken.Lt)) return new AstBinOp {KBinop = KBinop.Lt, exprLeft = term, exprRight = ParseExpr()};
+            
+            return term;
+        }
+
+        private AstExpr ParseTerm()
+        {
+            if (Accept(Ktoken.True)) return new AstBoolLit {f = true};
+            
+            if (Accept(Ktoken.False)) return new AstBoolLit {f = false};
+            
+            if (Accept(Ktoken.This)) return new AstThis();
+            
+            if (Accept(Ktoken.Null)) return new AstNull();
+            
+            if (FCurrent(Ktoken.IntLit)) return new AstIntLit {i = Expect(Ktoken.IntLit).I};
+            
+            if (FCurrent(Ktoken.StringLit)) return new AstStringLit {st = Expect(Ktoken.StringLit).St};
+
+            if (Accept(Ktoken.Minus)) return new AstUnOp {Kunop = KUnop.Minus, expr = ParseTerm()};
+            
+            if (Accept(Ktoken.Tilde)) return new AstUnOp {Kunop = KUnop.Minus, expr = ParseTerm()};
+
+            if (Accept(Ktoken.Lparen))
+            {
+                var expr = ParseExpr();
+                Expect(Ktoken.Rparen);
+                return expr;
+            }
+            return ParseRef();
+        }
+
+        private AstExpr ParseRef()
+        {
+            AstExpr varRef = new AstVarRef {StName = Expect(Ktoken.Id).St};
+
+            if (Accept(Ktoken.Lbracket))
+            {
+                var astIndex = new AstIndex { exprLeft = varRef, exprRight = ParseExpr() };
+                Expect(Ktoken.Rbracket);
+                return astIndex;
+            }
+
+            if (Accept(Ktoken.Dot))
+            {
+                var varRefRight = new AstVarRef { StName = Expect(Ktoken.Id).St };
+                varRef = new AstDot { varLeft = (AstVarRef)varRef, varRight = varRefRight };
+            }
+          
+            if (FCurrent(Ktoken.Lparen))
+                return new AstCall { exprFunc = varRef, rgexprParam = ParseArgumentList().ToArray() };
+
+            return varRef;
+        }
+
+        private IEnumerable<AstExpr> ParseArgumentList()
+        {
+            Expect(Ktoken.Lparen);
+
+            if (Accept(Ktoken.Rparen))
+                yield break;
+
+            while (true)
+            {
+                yield return ParseExpr();
+
+                if (Accept(Ktoken.Comma))
+                    continue;
+
+                Expect(Ktoken.Rparen);
+                break;
+            }
+        }
+
+        private IEnumerable<AstVar> ParseParamDefList()
+        {
+            Expect(Ktoken.Lparen);
+
+            if (Accept(Ktoken.Rparen))
+                yield break;
+            
+            while (true)
+            {
+                var type = ParseType();
+                var stName = Expect(Ktoken.Id).St;
+                yield return new AstVar
                 {
-                    var res = parser.Parse(rgtoken);
-                    if (!(res.FError))
-                        return res;
+                    Type = type,
+                    StName = stName
+                };
 
-                    hmlTokenExpected.UnionWith(res.HlmtokenExpected);
-                }
+                if (Accept(Ktoken.Comma))
+                    continue;
 
-                return Result.Error(rgtoken, hmlTokenExpected);
-            });
+                Expect(Ktoken.Rparen);
+                break;
+            }
         }
 
-        private Parser Seq(params Parser[] rgparser)
+        private IEnumerable<AstClassDecl> ParseRgClassDecl()
         {
-            return new Parser(rgtoken =>
+            while (FCurrent(Ktoken.Field) || FCurrent(Ktoken.Static))
             {
-                var rgastNodeCur = new List<AstNode>();
-
-                var hlmTokenNext = new HashSet<string>();
-                foreach (var parser in rgparser)
+                var kclassDecl = FCurrent(Ktoken.Field) ? KClassDecl.Field : KClassDecl.Static;
+                NextToken();
+                var type = ParseType();
+                do
                 {
-                    var res = parser.Parse(rgtoken);
-                    if (res.FError)
-                    {
-                        hlmTokenNext.UnionWith(res.HlmtokenExpected);
-                        return Result.Error(res.Rgtoken, hlmTokenNext);
-                    }
-                    rgastNodeCur.AddRange(res.Ennode);
-                    rgtoken = res.Rgtoken;
+                    var stName = Expect(Ktoken.Id).St;
+                    yield return new AstClassDecl {KClassDecl = kclassDecl, Type = type, StName = stName};
+                } while (Accept(Ktoken.Comma));
 
-                    if (res.Ennode.Any())
-                        hlmTokenNext = res.HlmtokenExpected;
-                    else
-                        hlmTokenNext.UnionWith(res.HlmtokenExpected);
-                }
-
-                return new Result(rgastNodeCur, rgtoken, hlmTokenNext);
-            });
+                Expect(Ktoken.Semicolon);
+            }
         }
 
-        private Parser Opt(params Parser[] parser)
+        
+        private IEnumerable<AstVar> ParseVarDeclList()
         {
-            return new Parser(rgtoken =>
+            while (Accept(Ktoken.Var))
             {
-                var res = Seq(parser).Parse(rgtoken);
-                return res.FError ? new Result(Enumerable.Empty<AstNode>(), rgtoken, res.HlmtokenExpected) : res;
-            });
-        }
-
-        private Parser Rep(params Parser[] rgparser)
-        {
-            return new Parser(rgtoken =>
-            {
-                var rgastNode = new List<AstNode>();
-                
-                while (true)
+                var type = ParseType();
+                do
                 {
-                    var rgastNodeCur = new List<AstNode>();
-                    var rgtokenStart = rgtoken;
+                    var stName = Expect(Ktoken.Id).St;
+                    yield return new AstVar { Type = type, StName = stName };
+                } while (Accept(Ktoken.Comma));
 
-                    foreach (var parser in rgparser)
-                    {
-                        var res = parser.Parse(rgtoken);
-                        if (res.FError)
-                            return new Result(rgastNode, rgtokenStart, res.HlmtokenExpected);
-                        
-                        rgastNodeCur.AddRange(res.Ennode);
-                        rgtoken = res.Rgtoken;
-                    }
-
-                    rgastNode.AddRange(rgastNodeCur);
-                }
-            });
-
+                Expect(Ktoken.Semicolon);
+            }
         }
 
-        private Parser Id()
+        private AstType ParseType()
         {
-            return Accept(token => token.Ktoken == Ktoken.Id, "id");
+            AstType type = null;
+            switch (tokenCur.Ktoken)
+            {
+                case Ktoken.Int: type = new AstType {Ktype = Ktype.Int, stType = tokenCur.St}; break;
+                case Ktoken.Bool: type = new AstType { Ktype = Ktype.Bool, stType = tokenCur.St }; break;
+                case Ktoken.Char: type = new AstType { Ktype = Ktype.Char, stType = tokenCur.St }; break;
+                case Ktoken.Id: type = new AstType { Ktype = Ktype.Class, stType = tokenCur.St }; break;
+                default: Expected(Ktoken.Int, Ktoken.Bool, Ktoken.Char, Ktoken.Id); break;
+            }
+            NextToken();
+            return type;
         }
 
-        private Parser Int()
-        {
-            return Accept(p => p.Ktoken == Ktoken.Int, "int");
-        }
-
-        private Parser String()
-        {
-            return Accept(p => p.Ktoken == Ktoken.String, "string");
-        }
-
-        private Parser Terminal(char ch)
-        {
-            return Accept(p => p.Ktoken == Ktoken.Symbol && p.Ch == ch, "'"+ch+"'");
-        }
-
-        private Parser Keyword(string st = null)
-        {
-            return Accept(p => p.Ktoken == Ktoken.Keyword && (st == null || p.St == st), st);
-        }
-
-        private Parser Accept(Predicate<Token> p, string st)
-        {
-            return new Parser(rgtoken =>rgtoken.Any() && 
-                                        p(rgtoken.First()) ? new Result(rgtoken.First(), rgtoken.Skip(1).ToList()/*xxx*/, new HashSet<string>()) : 
-                Result.Error(rgtoken, st));
-        }
     }
+
+    
+
+    public class AstNode
+    {
+        public AstNode[] Children;
+    }
+
+    public class AstClass : AstNode
+    {
+        public string StName;
+        public AstClassDecl[] rgclassDecl;
+        public AstSubroutine[] rgsubroutine;
+        
+    }
+
+    public enum Ksubroutine
+    {
+        Constructor, Method, Function
+    }
+    public class AstSubroutine : AstNode
+    {
+        public Ksubroutine Ksubroutine;
+        public string StName;
+        public AstType Type { get; set; }
+        public AstVar[] RgParam { get; set; }
+        public AstStm[] Body { get; set; }
+        public AstVar[] RgVarDecl { get; set; }
+    }
+
+    public enum KClassDecl { Field, Static}
+    public class AstClassDecl : AstNode
+    {
+        public KClassDecl KClassDecl;
+        public string StName;
+        public AstType Type;
+    }
+
+    public enum Ktype
+    {
+        Void, Int, Char, Bool, Class
+    }
+
+    public class AstType : AstNode
+    {
+        public Ktype Ktype;
+        public string stType;
+    }
+
+    public class AstVar : AstNode
+    {
+        public AstType Type;
+        public string StName;
+    }
+
+    public class AstStm : AstNode
+    {
+        
+    }
+
+    public class AstLet : AstStm
+    {
+        public AstExpr exprLeft;
+        public AstExpr exprRight;
+    }
+
+    public class AstReturn : AstStm
+    {
+        public AstExpr expr;
+    }
+
+    public class AstDo : AstStm
+    {
+        public AstCall exprCall;
+    }
+
+    public class AstWhile : AstStm
+    {
+        public AstExpr exprCond;
+        public AstStm[] rgstm;
+    }
+
+    public class AstIf : AstStm
+    {
+        public AstExpr exprCond;
+        public AstStm[] rgstm;
+        public AstStm[] rgstmElse;
+    }
+
+
+    public class AstExpr : AstNode
+    {
+ 
+    }
+
+    public enum KUnop
+    {
+        Minus, Negate
+    }
+
+    public class AstUnOp : AstExpr
+    {
+        public KUnop Kunop;
+        public AstExpr expr;
+    }
+
+    public enum KBinop
+    {
+        Plus, Div, Mul,And,Or,Lt,Gt, Eq,
+        Minus
+    }
+    public class AstBinOp : AstExpr
+    {
+        public KBinop KBinop;
+        public AstExpr exprLeft;
+        public AstExpr exprRight;
+    }
+
+
+    public class AstIndex : AstExpr
+    {
+        public AstExpr exprLeft;
+        public AstExpr exprRight;
+    }
+
+    public class AstVarRef : AstExpr
+    {
+        public string StName;
+    }
+
+    public class AstDot : AstExpr
+    {
+        public AstVarRef varLeft;
+        public AstVarRef varRight;
+    }
+
+
+    public class AstThis : AstExpr { }
+    public class AstNull: AstExpr { }
+
+    public class AstBoolLit : AstExpr
+    {
+        public bool f;
+    }
+    public class AstStringLit : AstExpr
+    {
+        public string st;
+    }
+    public class AstIntLit : AstExpr
+    {
+        public int i;
+    }
+
+    public class AstCall : AstExpr
+    {
+        public AstExpr exprFunc;
+        public AstExpr[] rgexprParam;
+    }
+
+    
 }

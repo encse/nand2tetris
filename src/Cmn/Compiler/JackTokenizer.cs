@@ -1,79 +1,157 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 
 namespace Cmn.Compiler
 {
-    public class JackTokenizer
+
+    class Erparse : Exception
+    {
+        public Erparse(int iline, int icol, string st) : base("Error at {0}:{1}: {2}".StFormat(iline, icol, st))
+        {
+
+        }
+    }
+    public enum Ktoken
+    {
+        [TokenDsc(Mtoken.Virtual, null)]Eof, 
+
+        [TokenDsc(Mtoken.Whitespace, @"\s+")]Whitespace,
+
+        [TokenDsc(Mtoken.Comment, @"/\*(?:(?!\*/)(?:.|[\n]+))*\*/")] BlockComment, 
+        [TokenDsc(Mtoken.Comment, @"/\*\*(?:(?!\*/)(?:.|[\n]+))*\*/")]ApiComment, 
+        [TokenDsc(Mtoken.Comment, @"//(.*?)\r?\n")]LineComment,
+
+        [TokenDsc(Mtoken.Other, @"[a-zA-Z_][a-zA-Z_0-9]*")] Id,
+        [TokenDsc(Mtoken.Other, @"[0-9]+")] IntLit,
+        [TokenDsc(Mtoken.Other, @"""[^""]*""")] StringLit,
+
+        [TokenDsc(Mtoken.Keyword, "class")] Class,
+        [TokenDsc(Mtoken.Keyword, "constructor")] Constructor,
+        [TokenDsc(Mtoken.Keyword, "function")] Function,
+        [TokenDsc(Mtoken.Keyword, "method")] Method,
+        [TokenDsc(Mtoken.Keyword, "field")] Field,
+        [TokenDsc(Mtoken.Keyword, "static")] Static,
+        [TokenDsc(Mtoken.Keyword, "var")] Var,
+        [TokenDsc(Mtoken.Keyword, "char")] Char,
+        [TokenDsc(Mtoken.Keyword, "int")] Int,
+        [TokenDsc(Mtoken.Keyword, "boolean")] Bool,
+        [TokenDsc(Mtoken.Keyword, "void")] Void,
+        [TokenDsc(Mtoken.Keyword, "true")] True,
+        [TokenDsc(Mtoken.Keyword, "false")] False,
+        [TokenDsc(Mtoken.Keyword, "null")] Null,
+        [TokenDsc(Mtoken.Keyword, "this")] This,
+        [TokenDsc(Mtoken.Keyword, "let")] Let,
+        [TokenDsc(Mtoken.Keyword, "do")] Do,
+        [TokenDsc(Mtoken.Keyword, "if")] If,
+        [TokenDsc(Mtoken.Keyword, "else")] Else,
+        [TokenDsc(Mtoken.Keyword, "while")] While,
+        [TokenDsc(Mtoken.Keyword, "return")] Return,
+        [TokenDsc(Mtoken.Symbol, "{")] Lbrace,
+        [TokenDsc(Mtoken.Symbol, "}")] Rbrace,
+        [TokenDsc(Mtoken.Symbol, "[")] Lbracket,
+        [TokenDsc(Mtoken.Symbol, "]")] Rbracket,
+        [TokenDsc(Mtoken.Symbol, "(")] Lparen,
+        [TokenDsc(Mtoken.Symbol, ")")] Rparen,
+        [TokenDsc(Mtoken.Symbol, ".")] Dot,
+        [TokenDsc(Mtoken.Symbol, ",")] Comma,
+        [TokenDsc(Mtoken.Symbol, ";")] Semicolon,
+        [TokenDsc(Mtoken.Symbol, "-")] Minus,
+        [TokenDsc(Mtoken.Symbol, "+")] Plus,
+        [TokenDsc(Mtoken.Symbol, "*")] Asterix,
+        [TokenDsc(Mtoken.Symbol, "/")] Slash,
+        [TokenDsc(Mtoken.Symbol, "&")] And,
+        [TokenDsc(Mtoken.Symbol, "|")] Or,
+        [TokenDsc(Mtoken.Symbol, "<")] Lt,
+        [TokenDsc(Mtoken.Symbol, ">")] Gt,
+        [TokenDsc(Mtoken.Symbol, "=")] Eq,
+        [TokenDsc(Mtoken.Symbol, "~")] Tilde
+    }
+
+    public class JackLexer
     {
         public IEnumerable<Token> Entoken(string st)
         {
-            return EntokenI(st).Where(jtok => !U.FIn(jtok.Ktoken, Ktoken.Whitespace, Ktoken.Comment));
+            return EntokenI(st).Where(jtok => !jtok.Mtoken.FIn(Mtoken.Comment, Mtoken.Whitespace));
         }
 
         IEnumerable<Token> EntokenI(string st)
         {
-            var rxWhitespace = new Regex(@"\G\s+");
-            var rxBlockComment = new Regex(@"\G/\*(?:(?!\*/)(?:.|[\n]+))*\*/");
-            var rxApiComment = new Regex(@"\G/\*\*(?:(?!\*/)(?:.|[\n]+))*\*/");
-            var rxLineComment = new Regex(@"\G//(.*?)\r?\n");
-            var rxId = new Regex(@"\G[a-zA-Z_][a-zA-Z_0-9]*");
-            var rxInt = new Regex(@"\G[0-9]+");
-            var rxString = new Regex(@"\G""[^""]*""");
+            var mpRegexByKtoken = new Dictionary<Ktoken, Regex>();
+            foreach (var ktoken in U.Enk<Ktoken>().Where(ktoken => ktoken.FRegex()))
+                mpRegexByKtoken[ktoken] = new Regex(@"\G" + ktoken.Rx());
 
+
+            var mpstByKtoken = new Dictionary<Ktoken, string>();
+            foreach (var ktoken in U.Enk<Ktoken>().Where(ktoken => !ktoken.FRegex()))
+                mpstByKtoken[ktoken] = ktoken.Rx();
+
+            var rgktoken = new[] {Mtoken.Whitespace, Mtoken.Comment, Mtoken.Keyword, Mtoken.Symbol, Mtoken.Other}.SelectMany(KtokenExtensions.Enktoken).ToArray();
+
+            int iline=1;
+            int icol=1;
             for(var ich=0;ich<st.Length;)
             {
-                string stMatch;
-              
-                if (FAccept(st, ich, out stMatch, rxWhitespace))
-                    yield return new Token(Ktoken.Whitespace, stMatch);
-                else if(FAccept(st, ich, out stMatch, rxApiComment))
-                    yield return new Token(Ktoken.Comment, stMatch);
+                string stMatch = null;
 
-                else if (FAccept(st, ich, out stMatch, rxBlockComment))
-                    yield return new Token(Ktoken.Comment, stMatch);
+                foreach (var ktoken in rgktoken )
+                {
 
-                else if(FAccept(st, ich, out stMatch, rxLineComment))
-                    yield return new Token(Ktoken.Comment, stMatch);
+                    if (mpRegexByKtoken.ContainsKey(ktoken))
+                    {
+                        if (FAccept(st, ich, out stMatch, mpRegexByKtoken[ktoken]))
+                        {
+                            if(ktoken == Ktoken.StringLit)
+                                yield return new Token(ktoken, stMatch.Trim('"'), iline, icol);    
+                            else
+                                yield return new Token(ktoken, stMatch, iline, icol);    
+                        }
+                    }
+                    else
+                    {
+                        if (FAccept(st, ich, out stMatch, mpstByKtoken[ktoken]))
+                            yield return new Token(ktoken, stMatch, iline, icol);
+                    }
 
-                else if (FAccept(st, ich, out stMatch, 
-                    "class","constructor", "function", "method", "field", "static","var",
-                    "int","char","boolean","void","true","false","null",
-                    "this","let","do","if","else","while","return"))
-                    yield return new Token(Ktoken.Keyword, stMatch);
+                    if (stMatch != null)
+                    {
+                        ich += stMatch.Length;
+                        break;
+                    }
+                }
 
-                else if (FAccept(st, ich, out stMatch, "{", "}", "[", "]", "(", ")", ".", ",", ";", "-", "+", "*", "/", "&", "|", "<", ">", "=" ,"~"))
-                    yield return new Token(Ktoken.Symbol, stMatch);
+                
+                if (stMatch == null)
+                {
+                    var stAt = st.Substring(ich, 10);
 
-                else if (FAccept(st, ich, out stMatch, rxId))
-                    yield return new Token(Ktoken.Id, stMatch);
+                    throw new Erparse(iline, icol, "Lexer error around " +stAt );
+                }
 
-                else if (FAccept(st, ich, out stMatch, rxInt))
-                    yield return new Token(Ktoken.Int, stMatch);
+                var rgstLines = stMatch.Replace("\r", "").Split('\n');
 
-                else if (FAccept(st, ich, out stMatch, rxString))
-                    yield return new Token(Ktoken.String, stMatch.Trim('"'));
-
-                ich += stMatch.Length;
+                iline += rgstLines.Length - 1;
+                if (rgstLines.Length > 1)
+                    icol = rgstLines.Last().Length + 1;
+                else
+                    icol += rgstLines.Last().Length;
             }
         }
 
-        private bool FAccept(string st, int ich, out string stMatch, params string[] rgstNeedle)
+        private bool FAccept(string st, int ich, out string stMatch, string stNeedle)
         {
-            foreach (var stNeedle in rgstNeedle)
-            {
-                var fOk = true;
-                for (int i = 0; i < stNeedle.Length && fOk; i++)
-                    fOk = ich + i < st.Length && st[ich + i] == stNeedle[i];
-                
-                if (fOk)
-                {
-                    stMatch = stNeedle;
-                    return true;
-                }
-            }
+            var fOk = true;
+            for (var i = 0; i < stNeedle.Length && fOk; i++)
+                fOk = ich + i < st.Length && st[ich + i] == stNeedle[i];
 
-            stMatch = "";
+            if (fOk)
+            {
+                stMatch = stNeedle;
+                return true;
+            }
+            
+            stMatch = null;
             return false;
         }
 
@@ -86,7 +164,7 @@ namespace Cmn.Compiler
                 return true;
             }
             
-            stMatch = "";
+            stMatch = null;
             return false;
         }
     }

@@ -45,6 +45,11 @@ namespace Cmn
             throw new Exception();
         }
 
+        public static IEnumerable<T> Enk<T>()
+        {
+            return Enum.GetValues(typeof(T)).Cast<T>();
+        }
+
         public static string ToMnemonic(this Enum e)
         {
             var f = e.GetType().GetField(e.ToString());
@@ -53,6 +58,14 @@ namespace Cmn
 
             var attributes = (MnemonicAttribute[])f.GetCustomAttributes(typeof(MnemonicAttribute), false);
             return attributes.Length > 0 ? attributes[0].st : e.ToString().ToLowerInvariant();
+        }
+
+        public static T GetAttribute<T>(this Enum e, bool fInherit = false)
+        {
+            var f = e.GetType().GetField(e.ToString());
+            var attributes = f.GetCustomAttributes(typeof(T), true);
+            return (T)attributes.SingleOrDefault();
+
         }
 
         public static IEnumerable<string> ToLinesSkipComments(this string st)

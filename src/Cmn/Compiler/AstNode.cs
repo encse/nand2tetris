@@ -1,28 +1,30 @@
 ﻿using System;
 using System.Xml;
+using Cmn.Compiler;
 
-namespace Cmn.Compiler
+namespace Cmn.Compiler2
 {
-    public abstract class AstNode
+    public abstract class AstNode2
     {
         public abstract void ToXml(XmlWriter xw);
     }
 
-    public class NonTerminal : AstNode
-    {
-        public readonly KnonTerminal KnonTerminal;
-        public readonly AstNode[] Children;
 
-        public NonTerminal(KnonTerminal knonTerminal, AstNode[] rgChildren)
+    public class NonTerminal2 : AstNode2
+    {
+        public readonly KnonTerminal Kind;
+        public readonly AstNode2[] Children;
+
+        public NonTerminal2(KnonTerminal kind, AstNode2[] rgChildren)
         {
-            KnonTerminal = knonTerminal;
+            Kind = kind;
             Children = rgChildren;
         }
 
         public override void ToXml(XmlWriter xw)
         {
             if(FWrapWithElement())
-                xw.WriteStartElement(KnonTerminal.ToMnemonic());
+                xw.WriteStartElement(Kind.ToMnemonic());
 
             foreach (var astNode in Children)
                 astNode.ToXml(xw);
@@ -33,7 +35,7 @@ namespace Cmn.Compiler
 
         private bool FWrapWithElement()
         {
-            switch (KnonTerminal)
+            switch (Kind)
             {
                 case KnonTerminal.Class:
                 case KnonTerminal.ClassVarDecl:
@@ -102,11 +104,12 @@ namespace Cmn.Compiler
         Term,
         Op,
         UnaryOp,
+
         [Mnemonic("parameterList")]
         ParameterList,
     }
 
-    public enum Ktoken
+    public enum Ktoken2
     {
         Eof,
         Whitespace,
@@ -123,27 +126,27 @@ namespace Cmn.Compiler
         String
     }
 
-    public class Token : AstNode
+    public class Terminal2 : AstNode2
     {
-        public readonly Ktoken Ktoken;
+        public readonly Ktoken2 Kind;
         public readonly string St;
         public int I { get { return int.Parse(St); } }
         public char Ch { get { return St[0]; } }
 
-        public Token(Ktoken ktoken, string st)
+        public Terminal2(Ktoken2 kind, string st)
         {
-            Ktoken = ktoken;
+            Kind = kind;
             St = st;
         }
 
         public override string ToString()
         {
-            return Ktoken+"("+St+")";
+            return Kind+"("+St+")";
         }
 
         public override void ToXml(XmlWriter xw)
         {
-            xw.WriteStartElement(Ktoken.ToMnemonic());
+            xw.WriteStartElement(Kind.ToMnemonic());
             xw.WriteString(" " + St + " ");
             xw.WriteFullEndElement();
         }
