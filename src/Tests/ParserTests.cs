@@ -27,13 +27,13 @@ namespace Tests
             var stXml = XDocument.Parse(U.StFromResource(typeof (Tests), fpatXml)).ToString();
 
             var n = new JackParser().Parse(stJack);
-            var xdoc = new XDocument();
+            //var xdoc = new XDocument();
             //using (var xw = XmlWriter.Create(xdoc.CreateWriter(), new XmlWriterSettings {IndentChars = "  "}))
             //{
             //    n.ToXml(xw);
             //}
 
-            Console.WriteLine(xdoc.ToString());
+            //Console.WriteLine(xdoc.ToString());
            // Assert.AreEqual(stXml, xdoc.ToString());
         }
 

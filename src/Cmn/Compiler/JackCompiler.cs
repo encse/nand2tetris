@@ -1,10 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
-using Cmn.Compiler2;
 
 namespace Cmn.Compiler
 {
@@ -57,7 +53,7 @@ namespace Cmn.Compiler
 
         }
 
-        private void CompileRecursive(AstNode2 node, Syt syt)
+        private void CompileRecursive(AstNode node, Syt syt)
         {
             throw new NotImplementedException();
         }

@@ -11,7 +11,7 @@
  * for drawing, erasing, moving on the screen, and changing its size.
  */
 class Square {
-
+	
     // Location on the screen
     field int x, y;
 

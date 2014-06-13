@@ -1,8 +1,5 @@
-using System;
-using System.IO;
 using System.Linq;
 using System.Collections.Generic;
-using System.Runtime.Remoting.Proxies;
 
 namespace Cmn.Compiler
 {
@@ -15,7 +12,7 @@ namespace Cmn.Compiler
         {
             get
             {
-                return itoken < rgtoken.Count ? rgtoken[itoken] : new Token(Ktoken.Eof, null, -1, -1);
+                return itoken < rgtoken.Count ? rgtoken[itoken] : Token.Eof; 
             }
         }
 
@@ -26,7 +23,7 @@ namespace Cmn.Compiler
 
         private bool FCurrent(Ktoken ktoken)
         {
-            return rgtoken[itoken].Ktoken == ktoken;
+            return tokenCur.Ktoken == ktoken;
         }
 
         private bool Accept(Ktoken ktoken)
@@ -48,6 +45,7 @@ namespace Cmn.Compiler
         {
             throw new Erparse(tokenCur.Iline, tokenCur.Icol, s);
         }
+
         private Token Expect(params Ktoken[] rgktoken)
         {
             if (rgktoken.All(ktoken => !FCurrent(ktoken)))
@@ -60,10 +58,18 @@ namespace Cmn.Compiler
 
         public AstNode Parse(string st)
         {
-            var lexer = new JackLexer();
-            rgtoken = lexer.Entoken(st).ToList();
-            itoken = 0;
-            return ParseClass();
+            try
+            {
+                var lexer = new JackLexer();
+                rgtoken = lexer.Entoken(st).ToList();
+                itoken = 0;
+                return ParseClass();
+            }
+            catch (Erparse er)
+            {
+                er.StSrc = st;
+                throw;
+            }
         }
 
         private AstClass ParseClass()
@@ -75,11 +81,11 @@ namespace Cmn.Compiler
 
             Expect(Ktoken.Lbrace);
 
-            _class.rgclassDecl = ParseRgClassDecl().ToArray();
-            _class.rgsubroutine = ParseRgSubroutine().ToArray();
+            _class.RgclassDecl = ParseRgClassDecl().ToArray();
+            _class.Rgsubroutine = ParseRgSubroutine().ToArray();
             
             Expect(Ktoken.Rbrace);
-
+            Expect(Ktoken.Eof);
             return _class;
         }
 
@@ -125,6 +131,8 @@ namespace Cmn.Compiler
                     yield return ParseIf();
                 else if (FCurrent(Ktoken.Return))
                     yield return ParseReturn();
+                else
+                    Error("Expected statement, found " + tokenCur.Ktoken);
             }
         }
 
@@ -369,164 +377,4 @@ namespace Cmn.Compiler
         }
 
     }
-
-    
-
-    public class AstNode
-    {
-        public AstNode[] Children;
-    }
-
-    public class AstClass : AstNode
-    {
-        public string StName;
-        public AstClassDecl[] rgclassDecl;
-        public AstSubroutine[] rgsubroutine;
-        
-    }
-
-    public enum Ksubroutine
-    {
-        Constructor, Method, Function
-    }
-    public class AstSubroutine : AstNode
-    {
-        public Ksubroutine Ksubroutine;
-        public string StName;
-        public AstType Type { get; set; }
-        public AstVar[] RgParam { get; set; }
-        public AstStm[] Body { get; set; }
-        public AstVar[] RgVarDecl { get; set; }
-    }
-
-    public enum KClassDecl { Field, Static}
-    public class AstClassDecl : AstNode
-    {
-        public KClassDecl KClassDecl;
-        public string StName;
-        public AstType Type;
-    }
-
-    public enum Ktype
-    {
-        Void, Int, Char, Bool, Class
-    }
-
-    public class AstType : AstNode
-    {
-        public Ktype Ktype;
-        public string stType;
-    }
-
-    public class AstVar : AstNode
-    {
-        public AstType Type;
-        public string StName;
-    }
-
-    public class AstStm : AstNode
-    {
-        
-    }
-
-    public class AstLet : AstStm
-    {
-        public AstExpr exprLeft;
-        public AstExpr exprRight;
-    }
-
-    public class AstReturn : AstStm
-    {
-        public AstExpr expr;
-    }
-
-    public class AstDo : AstStm
-    {
-        public AstCall exprCall;
-    }
-
-    public class AstWhile : AstStm
-    {
-        public AstExpr exprCond;
-        public AstStm[] rgstm;
-    }
-
-    public class AstIf : AstStm
-    {
-        public AstExpr exprCond;
-        public AstStm[] rgstm;
-        public AstStm[] rgstmElse;
-    }
-
-
-    public class AstExpr : AstNode
-    {
- 
-    }
-
-    public enum KUnop
-    {
-        Minus, Negate
-    }
-
-    public class AstUnOp : AstExpr
-    {
-        public KUnop Kunop;
-        public AstExpr expr;
-    }
-
-    public enum KBinop
-    {
-        Plus, Div, Mul,And,Or,Lt,Gt, Eq,
-        Minus
-    }
-    public class AstBinOp : AstExpr
-    {
-        public KBinop KBinop;
-        public AstExpr exprLeft;
-        public AstExpr exprRight;
-    }
-
-
-    public class AstIndex : AstExpr
-    {
-        public AstExpr exprLeft;
-        public AstExpr exprRight;
-    }
-
-    public class AstVarRef : AstExpr
-    {
-        public string StName;
-    }
-
-    public class AstDot : AstExpr
-    {
-        public AstVarRef varLeft;
-        public AstVarRef varRight;
-    }
-
-
-    public class AstThis : AstExpr { }
-    public class AstNull: AstExpr { }
-
-    public class AstBoolLit : AstExpr
-    {
-        public bool f;
-    }
-    public class AstStringLit : AstExpr
-    {
-        public string st;
-    }
-    public class AstIntLit : AstExpr
-    {
-        public int i;
-    }
-
-    public class AstCall : AstExpr
-    {
-        public AstExpr exprFunc;
-        public AstExpr[] rgexprParam;
-    }
-
-    
 }

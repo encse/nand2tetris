@@ -1,18 +1,9 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 
 namespace Cmn.Compiler
 {
-
-    class Erparse : Exception
-    {
-        public Erparse(int iline, int icol, string st) : base("Error at {0}:{1}: {2}".StFormat(iline, icol, st))
-        {
-
-        }
-    }
     public enum Ktoken
     {
         [TokenDsc(Mtoken.Virtual, null)]Eof, 
@@ -27,27 +18,28 @@ namespace Cmn.Compiler
         [TokenDsc(Mtoken.Other, @"[0-9]+")] IntLit,
         [TokenDsc(Mtoken.Other, @"""[^""]*""")] StringLit,
 
-        [TokenDsc(Mtoken.Keyword, "class")] Class,
-        [TokenDsc(Mtoken.Keyword, "constructor")] Constructor,
-        [TokenDsc(Mtoken.Keyword, "function")] Function,
-        [TokenDsc(Mtoken.Keyword, "method")] Method,
-        [TokenDsc(Mtoken.Keyword, "field")] Field,
-        [TokenDsc(Mtoken.Keyword, "static")] Static,
-        [TokenDsc(Mtoken.Keyword, "var")] Var,
-        [TokenDsc(Mtoken.Keyword, "char")] Char,
-        [TokenDsc(Mtoken.Keyword, "int")] Int,
-        [TokenDsc(Mtoken.Keyword, "boolean")] Bool,
-        [TokenDsc(Mtoken.Keyword, "void")] Void,
-        [TokenDsc(Mtoken.Keyword, "true")] True,
-        [TokenDsc(Mtoken.Keyword, "false")] False,
-        [TokenDsc(Mtoken.Keyword, "null")] Null,
-        [TokenDsc(Mtoken.Keyword, "this")] This,
-        [TokenDsc(Mtoken.Keyword, "let")] Let,
-        [TokenDsc(Mtoken.Keyword, "do")] Do,
-        [TokenDsc(Mtoken.Keyword, "if")] If,
-        [TokenDsc(Mtoken.Keyword, "else")] Else,
-        [TokenDsc(Mtoken.Keyword, "while")] While,
-        [TokenDsc(Mtoken.Keyword, "return")] Return,
+        [TokenDsc(Mtoken.Keyword, @"class")] Class,
+        [TokenDsc(Mtoken.Keyword, @"constructor")] Constructor,
+        [TokenDsc(Mtoken.Keyword, @"function")] Function,
+        [TokenDsc(Mtoken.Keyword, @"method")] Method,
+        [TokenDsc(Mtoken.Keyword, @"field")] Field,
+        [TokenDsc(Mtoken.Keyword, @"static")] Static,
+        [TokenDsc(Mtoken.Keyword, @"var")] Var,
+        [TokenDsc(Mtoken.Keyword, @"char")] Char,
+        [TokenDsc(Mtoken.Keyword, @"int")] Int,
+        [TokenDsc(Mtoken.Keyword, @"boolean")] Bool,
+        [TokenDsc(Mtoken.Keyword, @"void")] Void,
+        [TokenDsc(Mtoken.Keyword, @"true")] True,
+        [TokenDsc(Mtoken.Keyword, @"false")] False,
+        [TokenDsc(Mtoken.Keyword, @"null")] Null,
+        [TokenDsc(Mtoken.Keyword, @"this")] This,
+        [TokenDsc(Mtoken.Keyword, @"let")] Let,
+        [TokenDsc(Mtoken.Keyword, @"do")] Do,
+        [TokenDsc(Mtoken.Keyword, @"if")] If,
+        [TokenDsc(Mtoken.Keyword, @"else")] Else,
+        [TokenDsc(Mtoken.Keyword, @"while")] While,
+        [TokenDsc(Mtoken.Keyword, @"return")] Return,
+
         [TokenDsc(Mtoken.Symbol, "{")] Lbrace,
         [TokenDsc(Mtoken.Symbol, "}")] Rbrace,
         [TokenDsc(Mtoken.Symbol, "[")] Lbracket,
@@ -82,6 +74,7 @@ namespace Cmn.Compiler
             foreach (var ktoken in U.Enk<Ktoken>().Where(ktoken => ktoken.FRegex()))
                 mpRegexByKtoken[ktoken] = new Regex(@"\G" + ktoken.Rx());
 
+            var hlmKeyword = new HashSet<Ktoken>(U.Enk<Ktoken>().Where(ktoken => ktoken.Mtoken() == Mtoken.Keyword));
 
             var mpstByKtoken = new Dictionary<Ktoken, string>();
             foreach (var ktoken in U.Enk<Ktoken>().Where(ktoken => !ktoken.FRegex()))
@@ -107,6 +100,11 @@ namespace Cmn.Compiler
                             else
                                 yield return new Token(ktoken, stMatch, iline, icol);    
                         }
+                    }
+                    else if (hlmKeyword.Contains(ktoken))
+                    {
+                        if (FAccept(st, ich, out stMatch, mpstByKtoken[ktoken]) && (ich+stMatch.Length == st.Length || !Regex.IsMatch( st[ich+stMatch.Length]+"", "\\w")))
+                            yield return new Token(ktoken, stMatch, iline, icol);
                     }
                     else
                     {

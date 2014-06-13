@@ -45,13 +45,15 @@ namespace Cmn.Compiler
         Virtual, Whitespace, Comment, Keyword, Symbol, Other
     }
 
-    public class Token : AstNode
+    public class Token
     {
         public readonly Ktoken Ktoken;
         public readonly Mtoken Mtoken;
         public readonly string St;
         public int I { get { return int.Parse(St); } }
         public char Ch { get { return St[0]; } }
+        public static readonly Token Eof = new Token(Ktoken.Eof, null, -1, -1);
+
         public readonly int Iline;
         public readonly int Icol;
 
