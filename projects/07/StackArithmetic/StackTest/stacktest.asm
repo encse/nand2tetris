@@ -2,165 +2,207 @@
 	D=A
 	@0
 	M=D
-	@0
-	D=A
 	@R14
-	M=D
+	M=0
 	@Sys.init
 	D=A
 	@R15
 	M=D
-	@__return_3
+	@__after_call_6
 	D=A
 	@__funcall_0
 	D;JMP
-(__return_3)
-(__end_2)
-	@__end_2
+(__after_call_6)
+(__end_5)
+	@__end_5
 	0;JMP
-(__funcall_0)
-		@SP
-		AM=M+1
-		A=A-1
-		M=D
-		@LCL
-		D=M
-		@SP
-		AM=M+1
-		A=A-1
-		M=D
-		@ARG
-		D=M
-		@SP
-		AM=M+1
-		A=A-1
-		M=D
-		@THIS
-		D=M
-		@SP
-		AM=M+1
-		A=A-1
-		M=D
-		@THAT
-		D=M
-		@SP
-		AM=M+1
-		A=A-1
-		M=D
-		@SP
-		D=M
-		@R14
-		D=D-M
-		@5
-		D=D-A
-		@ARG
-		M=D
-		@SP
-		D=M
-		@LCL
-		M=D
-		@R15
-		A=M
-		D;JMP
-(__return_1)
-		@LCL
-		D=M
-		@R13
-		M=D
-		@5
-		A=D-A
-		D=M
-		@R14
-		M=D
-		@SP
-		A=M-1
-		D=M
-		@ARG
-		A=M
-		M=D
-		@ARG
-		D=M+1
-		@SP
-		M=D
-		@R13
-		AM=M-1
-		D=M
-		@THAT
-		M=D
-		@R13
-		AM=M-1
-		D=M
-		@THIS
-		M=D
-		@R13
-		AM=M-1
-		D=M
-		@ARG
-		M=D
-		@R13
-		AM=M-1
-		D=M
-		@LCL
-		M=D
-		@R14
-		A=M
-		D;JMP
-	@17
-	D=A
-	@SP
-	AM=M+1
-	A=A-1
-	M=D
-	@17
-	D=A
-	@SP
-	AM=M+1
-	A=A-1
+(__eq_2)
+	@R14
 	M=D
 	@SP
 	A=M-1
 	D=M
 	A=A-1
 	D=M-D
-	@__lbl_4
-	D;JEQ
-	@__lbl_5
-	D=0;JEQ
-(__lbl_4)
-	D=-1
-(__lbl_5)
-	@SP
-	M=M-1
-	A=M-1
-	M=D
-	@17
-	D=A
-	@SP
-	AM=M+1
-	A=A-1
-	M=D
-	@16
-	D=A
-	@SP
-	AM=M+1
-	A=A-1
-	M=D
-	@SP
-	A=M-1
-	D=M
-	A=A-1
-	D=M-D
-	@__lbl_6
-	D;JEQ
 	@__lbl_7
+	D;JEQ
+	@__lbl_8
 	D=0;JEQ
-(__lbl_6)
-	D=-1
 (__lbl_7)
+	D=-1
+(__lbl_8)
 	@SP
 	M=M-1
 	A=M-1
 	M=D
+	@R14
+	A=M
+	D;JMP
+(__gt_3)
+	@R14
+	M=D
+	@SP
+	A=M-1
+	D=M
+	A=A-1
+	D=M-D
+	@__lbl_9
+	D;JGT
+	@__lbl_10
+	D=0;JEQ
+(__lbl_9)
+	D=-1
+(__lbl_10)
+	@SP
+	M=M-1
+	A=M-1
+	M=D
+	@R14
+	A=M
+	D;JMP
+(__lt_4)
+	@R14
+	M=D
+	@SP
+	A=M-1
+	D=M
+	A=A-1
+	D=M-D
+	@__lbl_11
+	D;JLT
+	@__lbl_12
+	D=0;JEQ
+(__lbl_11)
+	D=-1
+(__lbl_12)
+	@SP
+	M=M-1
+	A=M-1
+	M=D
+	@R14
+	A=M
+	D;JMP
+(__funcall_0)
+	@SP
+	AM=M+1
+	A=A-1
+	M=D
+	@LCL
+	D=M
+	@SP
+	AM=M+1
+	A=A-1
+	M=D
+	@ARG
+	D=M
+	@SP
+	AM=M+1
+	A=A-1
+	M=D
+	@THIS
+	D=M
+	@SP
+	AM=M+1
+	A=A-1
+	M=D
+	@THAT
+	D=M
+	@SP
+	AM=M+1
+	A=A-1
+	M=D
+	@SP
+	D=M
+	@R14
+	D=D-M
+	@5
+	D=D-A
+	@ARG
+	M=D
+	@SP
+	D=M
+	@LCL
+	M=D
+	@R15
+	A=M
+	D;JMP
+(__return_1)
+	@LCL
+	D=M
+	@R13
+	M=D
+	@5
+	A=D-A
+	D=M
+	@R14
+	M=D
+	@SP
+	A=M-1
+	D=M
+	@ARG
+	A=M
+	M=D
+	@ARG
+	D=M+1
+	@SP
+	M=D
+	@R13
+	AM=M-1
+	D=M
+	@THAT
+	M=D
+	@R13
+	AM=M-1
+	D=M
+	@THIS
+	M=D
+	@R13
+	AM=M-1
+	D=M
+	@ARG
+	M=D
+	@R13
+	AM=M-1
+	D=M
+	@LCL
+	M=D
+	@R14
+	A=M
+	D;JMP
+	@17
+	D=A
+	@SP
+	AM=M+1
+	A=A-1
+	M=D
+	@17
+	D=A
+	@SP
+	AM=M+1
+	A=A-1
+	M=D
+	@__lbl_13
+	D=A
+	@__eq_2
+	D;JMP
+(__lbl_13)
+	@17
+	D=A
+	@SP
+	AM=M+1
+	A=A-1
+	M=D
+	@16
+	D=A
+	@SP
+	AM=M+1
+	A=A-1
+	M=D
+	@__lbl_14
+	D=A
+	@__eq_2
+	D;JMP
+(__lbl_14)
 	@16
 	D=A
 	@SP
@@ -173,134 +215,79 @@
 	AM=M+1
 	A=A-1
 	M=D
-	@SP
-	A=M-1
-	D=M
-	A=A-1
-	D=M-D
-	@__lbl_8
-	D;JEQ
-	@__lbl_9
-	D=0;JEQ
-(__lbl_8)
-	D=-1
-(__lbl_9)
-	@SP
-	M=M-1
-	A=M-1
-	M=D
-	@892
-	D=A
-	@SP
-	AM=M+1
-	A=A-1
-	M=D
-	@891
-	D=A
-	@SP
-	AM=M+1
-	A=A-1
-	M=D
-	@SP
-	A=M-1
-	D=M
-	A=A-1
-	D=M-D
-	@__lbl_10
-	D;JLT
-	@__lbl_11
-	D=0;JEQ
-(__lbl_10)
-	D=-1
-(__lbl_11)
-	@SP
-	M=M-1
-	A=M-1
-	M=D
-	@891
-	D=A
-	@SP
-	AM=M+1
-	A=A-1
-	M=D
-	@892
-	D=A
-	@SP
-	AM=M+1
-	A=A-1
-	M=D
-	@SP
-	A=M-1
-	D=M
-	A=A-1
-	D=M-D
-	@__lbl_12
-	D;JLT
-	@__lbl_13
-	D=0;JEQ
-(__lbl_12)
-	D=-1
-(__lbl_13)
-	@SP
-	M=M-1
-	A=M-1
-	M=D
-	@891
-	D=A
-	@SP
-	AM=M+1
-	A=A-1
-	M=D
-	@891
-	D=A
-	@SP
-	AM=M+1
-	A=A-1
-	M=D
-	@SP
-	A=M-1
-	D=M
-	A=A-1
-	D=M-D
-	@__lbl_14
-	D;JLT
 	@__lbl_15
-	D=0;JEQ
-(__lbl_14)
-	D=-1
+	D=A
+	@__eq_2
+	D;JMP
 (__lbl_15)
-	@SP
-	M=M-1
-	A=M-1
-	M=D
-	@32767
+	@892
 	D=A
 	@SP
 	AM=M+1
 	A=A-1
 	M=D
-	@32766
+	@891
 	D=A
 	@SP
 	AM=M+1
 	A=A-1
 	M=D
-	@SP
-	A=M-1
-	D=M
-	A=A-1
-	D=M-D
 	@__lbl_16
-	D;JGT
-	@__lbl_17
-	D=0;JEQ
+	D=A
+	@__lt_4
+	D;JMP
 (__lbl_16)
-	D=-1
-(__lbl_17)
+	@891
+	D=A
 	@SP
-	M=M-1
-	A=M-1
+	AM=M+1
+	A=A-1
 	M=D
+	@892
+	D=A
+	@SP
+	AM=M+1
+	A=A-1
+	M=D
+	@__lbl_17
+	D=A
+	@__lt_4
+	D;JMP
+(__lbl_17)
+	@891
+	D=A
+	@SP
+	AM=M+1
+	A=A-1
+	M=D
+	@891
+	D=A
+	@SP
+	AM=M+1
+	A=A-1
+	M=D
+	@__lbl_18
+	D=A
+	@__lt_4
+	D;JMP
+(__lbl_18)
+	@32767
+	D=A
+	@SP
+	AM=M+1
+	A=A-1
+	M=D
+	@32766
+	D=A
+	@SP
+	AM=M+1
+	A=A-1
+	M=D
+	@__lbl_19
+	D=A
+	@__gt_3
+	D;JMP
+(__lbl_19)
 	@32766
 	D=A
 	@SP
@@ -313,50 +300,28 @@
 	AM=M+1
 	A=A-1
 	M=D
-	@SP
-	A=M-1
-	D=M
-	A=A-1
-	D=M-D
-	@__lbl_18
-	D;JGT
-	@__lbl_19
-	D=0;JEQ
-(__lbl_18)
-	D=-1
-(__lbl_19)
-	@SP
-	M=M-1
-	A=M-1
-	M=D
-	@32766
-	D=A
-	@SP
-	AM=M+1
-	A=A-1
-	M=D
-	@32766
-	D=A
-	@SP
-	AM=M+1
-	A=A-1
-	M=D
-	@SP
-	A=M-1
-	D=M
-	A=A-1
-	D=M-D
 	@__lbl_20
-	D;JGT
-	@__lbl_21
-	D=0;JEQ
+	D=A
+	@__gt_3
+	D;JMP
 (__lbl_20)
-	D=-1
-(__lbl_21)
+	@32766
+	D=A
 	@SP
-	M=M-1
-	A=M-1
+	AM=M+1
+	A=A-1
 	M=D
+	@32766
+	D=A
+	@SP
+	AM=M+1
+	A=A-1
+	M=D
+	@__lbl_21
+	D=A
+	@__gt_3
+	D;JMP
+(__lbl_21)
 	@57
 	D=A
 	@SP
