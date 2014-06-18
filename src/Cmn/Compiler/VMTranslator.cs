@@ -66,8 +66,8 @@ namespace Cmn.Compiler
         {
             foreach (var st in src)
             {
-                //if(st.StartsWith("//"))
-                //    continue;
+                if (st.StartsWith("//"))
+                    continue;
                 
                 if (!st.StartsWith("(") && !st.StartsWith("//"))
                     yield return "\t" + st;
@@ -520,7 +520,7 @@ namespace Cmn.Compiler
             //yield return "A=M";
             yield return "D=M";
 
-            yield return "@" + stFunc + vmcmd.StLabel;
+            yield return "@" + stFunc + "$" + vmcmd.StLabel;
             yield return "D;JNE";
         }
 
