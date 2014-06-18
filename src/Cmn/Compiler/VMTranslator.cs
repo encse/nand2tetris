@@ -34,8 +34,8 @@ namespace Cmn.Compiler
         public IEnumerable<string> ToAsm(IEnumerable<string> rgfpat)
         {
             var idgen = new Idgen();
-            foreach (var st in Indent(Bootstrap(idgen)))
-                yield return st;
+            //foreach (var st in Indent(Bootstrap(idgen)))
+            //    yield return st;
             
             foreach (var fpat in rgfpat)
             {
@@ -56,7 +56,7 @@ namespace Cmn.Compiler
             yield return "@0";
             yield return "M=D";
             idgen.filn = "Sys.vm";
-            foreach (var st in ProcessCall(new Vmcmd(Kcmd.Call, Ksegment.Nil, 0, "Sys.init"), idgen))
+            foreach (var st in ProcessCall(new Vmcmd(Kcmd.Call, Ksegment.Nil, 0, "Sys.init"), idgen, null))
                 yield return st;
             idgen.filn = null;
 
@@ -66,6 +66,9 @@ namespace Cmn.Compiler
         {
             foreach (var st in src)
             {
+                //if(st.StartsWith("//"))
+                //    continue;
+                
                 if (!st.StartsWith("(") && !st.StartsWith("//"))
                     yield return "\t" + st;
                 else
@@ -75,11 +78,12 @@ namespace Cmn.Compiler
 
         private IEnumerable<string> ToAsmI(Idgen idgen, string src)
         {
+            string stFunc = null;
             foreach (var vmcmd in EnvmcdParse(src))
             {
                 yield return "//" + vmcmd.Unparse();
-
-                Func<Vmcmd, Idgen, IEnumerable<string>> dg;
+                
+                Func<Vmcmd, Idgen, string, IEnumerable<string>> dg;
                 switch (vmcmd.Kcmd)
                 {
                     case Kcmd.Label: dg = ProcessLabel; break;
@@ -110,6 +114,7 @@ namespace Cmn.Compiler
                         dg = ProcessCall;
                         break;
                     case Kcmd.Function:
+                        stFunc = vmcmd.StFn;
                         dg = ProcessFunction;
                         break;
                     case Kcmd.Return:
@@ -119,12 +124,12 @@ namespace Cmn.Compiler
                         throw new ArgumentOutOfRangeException();
                 }
 
-                foreach (var st in dg(vmcmd, idgen))
+                foreach (var st in dg(vmcmd, idgen, stFunc))
                     yield return st;
             }
         }
 
-        private static IEnumerable<string> ProcessReturn(Vmcmd vmcmd, Idgen idgen)
+        private static IEnumerable<string> ProcessReturn(Vmcmd vmcmd, Idgen idgen, string stFunc)
         {
             yield return "//FRAME = LCL";
             yield return "@LCL";
@@ -158,8 +163,8 @@ namespace Cmn.Compiler
             {
                 yield return "//{0} = *(FRAME-{1})".StFormat(lbl, k++);
                 yield return "@R13";
-                yield return "M=M-1";
-                yield return "A=M";
+                yield return "AM=M-1";
+                //yield return "A=M";
                 yield return "D=M";
                 yield return "@" + lbl;
                 yield return "M=D";
@@ -170,7 +175,7 @@ namespace Cmn.Compiler
             yield return "D;JMP";
         }
 
-        private static IEnumerable<string> ProcessFunction(Vmcmd vmcmd, Idgen idgen)
+        private static IEnumerable<string> ProcessFunction(Vmcmd vmcmd, Idgen idgen, string stFunc)
         {
             yield return "(" + idgen.Fun(vmcmd.StFn) + ")";
 
@@ -178,13 +183,13 @@ namespace Cmn.Compiler
             {
                 yield return "//push 0";
                 yield return "@SP";
-                yield return "M=M+1";
-                yield return "A=M-1";
+                yield return "AM=M+1";
+                yield return "A=A-1";
                 yield return "M=0";
             }
         }
 
-        private static IEnumerable<string> ProcessCall(Vmcmd vmcmd, Idgen idgen)
+        private static IEnumerable<string> ProcessCall(Vmcmd vmcmd, Idgen idgen, string stFunc)
         {
             var lblNext = idgen.Id();
 
@@ -193,8 +198,8 @@ namespace Cmn.Compiler
             yield return "D=A";
 
             yield return "@SP";
-            yield return "M=M+1";
-            yield return "A=M-1";
+            yield return "AM=M+1";
+            yield return "A=A-1";
             yield return "M=D";
 
             foreach (var lbl in new[] {"LCL", "ARG", "THIS", "THAT"})
@@ -204,8 +209,8 @@ namespace Cmn.Compiler
                 yield return "D=M";
 
                 yield return "@SP";
-                yield return "M=M+1";
-                yield return "A=M-1";
+                yield return "AM=M+1";
+                yield return "A=A-1";
                 yield return "M=D";
             }
 
@@ -229,7 +234,7 @@ namespace Cmn.Compiler
             yield return "(" + lblNext + ")";
         }
 
-        private static IEnumerable<string> ProcessPop(Vmcmd vmcmd, Idgen idgen)
+        private static IEnumerable<string> ProcessPop(Vmcmd vmcmd, Idgen idgen, string stFunc)
         {
             switch (vmcmd.Ksegment)
             {
@@ -266,7 +271,7 @@ namespace Cmn.Compiler
             }
 
 
-            if (vmcmd.Ksegment != Ksegment.Static)
+            if (vmcmd.Ksegment != Ksegment.Static && vmcmd.I > 0)
             {
                 yield return "@" + vmcmd.I;
                 yield return "D=D+A";
@@ -277,8 +282,8 @@ namespace Cmn.Compiler
 
 
             yield return "@SP"; //a = &sp
-            yield return "M=M-1"; //sp--
-            yield return "A=M"; //a = sp
+            yield return "AM=M-1"; //sp--
+            //yield return "A=M"; //a = sp
             yield return "D=M"; //d = sp[0]
 
             yield return "@R13";
@@ -286,54 +291,135 @@ namespace Cmn.Compiler
             yield return "M=D";
         }
 
-        private static IEnumerable<string> ProcessPush(Vmcmd vmcmd, Idgen idgen)
+        private static IEnumerable<string> ProcessPush(Vmcmd vmcmd, Idgen idgen, string stFunc)
         {
             switch (vmcmd.Ksegment)
             {
                 case Ksegment.Constant:
+                {
+                    if (vmcmd.I.FIn(0,1))
+                    {
+                        yield return "@SP"; 
+                        yield return "AM=M+1"; 
+                        yield return "A=A-1"; 
+                        yield return "M={0}".StFormat(vmcmd.I); 
+                        yield break;
+                    }
+                    
                     yield return "@" + vmcmd.I;
                     yield return "D=A"; //d = vmcmd.I
                     break;
+                }
+                    
                 case Ksegment.Local:
                     yield return "@LCL";
                     yield return "D=M"; //d = vmcmd.I
-                    yield return "@" + vmcmd.I;
-                    yield return "A=D+A"; //d = vmcmd.I
+
+                    if (vmcmd.I == 0)
+                    {
+                        yield return "A=M";
+                    }
+                    else if (vmcmd.I == 1)
+                    {
+                        yield return "A=M+1";
+                    }
+                    else
+                    {
+                        yield return "@" + vmcmd.I;
+                        yield return "A=D+A"; //d = vmcmd.I
+                    }
                     yield return "D=M";
                     break;
                 case Ksegment.Argument:
                     yield return "@ARG";
-                    yield return "D=M"; //d = vmcmd.I
-                    yield return "@" + vmcmd.I;
-                    yield return "A=D+A"; //d = vmcmd.I
+                    if (vmcmd.I == 0)
+                    {
+                        yield return "A=M";
+                    }
+                    else if (vmcmd.I == 1)
+                    {
+                        yield return "A=M+1";
+                    }
+                    else
+                    {
+                        yield return "D=M"; //d = vmcmd.I
+                        yield return "@" + vmcmd.I;
+                        yield return "A=D+A"; //d = vmcmd.I
+                    }
                     yield return "D=M";
                     break;
                 case Ksegment.This:
                     yield return "@THIS";
-                    yield return "D=M"; //d = vmcmd.I
-                    yield return "@" + vmcmd.I;
-                    yield return "A=D+A"; //d = vmcmd.I
+
+                    if (vmcmd.I == 0)
+                    {
+                        yield return "A=M";
+                    }
+                    else if (vmcmd.I == 1)
+                    {
+                        yield return "A=M+1";
+                    }
+                    else
+                    {
+                        yield return "D=M"; //d = vmcmd.I
+                        yield return "@" + vmcmd.I;
+                        yield return "A=D+A"; //d = vmcmd.I
+                    }
                     yield return "D=M";
                     break;
                 case Ksegment.That:
                     yield return "@THAT";
-                    yield return "D=M"; //d = vmcmd.I
-                    yield return "@" + vmcmd.I;
-                    yield return "A=D+A"; //d = vmcmd.I
+                    if (vmcmd.I == 0)
+                    {
+                        yield return "A=M";
+                    }
+                    else if (vmcmd.I == 1)
+                    {
+                        yield return "A=M+1";
+                    }
+                    else
+                    {
+                        yield return "D=M"; //d = vmcmd.I
+                        yield return "@" + vmcmd.I;
+                        yield return "A=D+A"; //d = vmcmd.I
+                    }
+
                     yield return "D=M";
                     break;
                 case Ksegment.Temp:
                     yield return "@R5";
-                    yield return "D=A"; //d = vmcmd.I
-                    yield return "@" + vmcmd.I;
-                    yield return "A=D+A"; //d = vmcmd.I
+                    if (vmcmd.I == 0)
+                    {
+                        ;
+                    }
+                    else if (vmcmd.I == 1)
+                    {
+                        yield return "A=A+1";
+                    }
+                    else
+                    {
+                        yield return "D=A"; //d = vmcmd.I
+                        yield return "@" + vmcmd.I;
+                        yield return "A=D+A"; //d = vmcmd.I
+                    }
                     yield return "D=M";
                     break;
                 case Ksegment.Pointer:
                     yield return "@THIS";
-                    yield return "D=A"; //d = vmcmd.I
-                    yield return "@" + vmcmd.I;
-                    yield return "A=D+A"; //d = vmcmd.I
+                    if (vmcmd.I == 0)
+                    {
+                        ;
+                    }
+                    else if(vmcmd.I == 1)
+                    {
+                        yield return "A=A+1";
+                    }
+                    else
+                    {
+                        yield return "D=A"; //d = vmcmd.I
+                        yield return "@" + vmcmd.I;
+                        yield return "A=D+A"; //d = vmcmd.I
+                    }
                     yield return "D=M";
                     break;
                 case Ksegment.Static:
@@ -345,12 +431,12 @@ namespace Cmn.Compiler
             }
 
             yield return "@SP"; //a = &sp
-            yield return "M=M+1"; //sp++
-            yield return "A=M-1"; //a = sp-1
+            yield return "AM=M+1"; //sp++
+            yield return "A=A-1"; //a = sp-1
             yield return "M=D"; //sp[-1] = d
         }
 
-        private static IEnumerable<string> ProcessEqGtLt(Vmcmd vmcmd, Idgen idgen)
+        private static IEnumerable<string> ProcessEqGtLt(Vmcmd vmcmd, Idgen idgen, string stFunc)
         {
             yield return "@SP"; //a = &sp
             yield return "A=M-1"; //a = sp - 1
@@ -389,7 +475,7 @@ namespace Cmn.Compiler
             yield return "M=D"; //sp[-1] = d
         }
 
-        private static IEnumerable<string> ProcessNegNot(Vmcmd vmcmd, Idgen idgen)
+        private static IEnumerable<string> ProcessNegNot(Vmcmd vmcmd, Idgen idgen, string stFunc)
         {
             yield return "@SP"; //a = &sp
             yield return "A=M-1"; //a = sp - 1
@@ -399,7 +485,7 @@ namespace Cmn.Compiler
                 yield return "M=!M"; //d = !sp[-1]
         }
 
-        private static IEnumerable<string> ProcessAddSubAndOr(Vmcmd vmcmd, Idgen idgen)
+        private static IEnumerable<string> ProcessAddSubAndOr(Vmcmd vmcmd, Idgen idgen, string stFunc)
         {
             yield return "@SP"; //a = &sp
             yield return "A=M-1"; //a = sp - 1
@@ -427,29 +513,26 @@ namespace Cmn.Compiler
             yield return "M=M-1"; //sp = sp - 1
         }
 
-        private static IEnumerable<string> ProcessIfGoto(Vmcmd vmcmd, Idgen idgen)
+        private static IEnumerable<string> ProcessIfGoto(Vmcmd vmcmd, Idgen idgen, string stFunc)
         {
-            throw new Exception("meg kell keresni fölötte a függvényt és annak a nevét is belevenni");
             yield return "@SP";
-            yield return "M=M-1";
-            yield return "A=M";
+            yield return "AM=M-1";
+            //yield return "A=M";
             yield return "D=M";
 
-            yield return "@" + vmcmd.StLabel;
+            yield return "@" + stFunc + vmcmd.StLabel;
             yield return "D;JNE";
         }
 
-        private static IEnumerable<string> ProcessGoto(Vmcmd vmcmd, Idgen idgen)
+        private static IEnumerable<string> ProcessGoto(Vmcmd vmcmd, Idgen idgen, string stFunc)
         {
-            throw new Exception("meg kell keresni fölötte a függvényt és annak a nevét is belevenni");
-            yield return "@" + vmcmd.StLabel;
+            yield return "@" + stFunc + "$" + vmcmd.StLabel;
             yield return "D;JMP";
         }
 
-        private static IEnumerable<string> ProcessLabel(Vmcmd vmcmd, Idgen idgen)
+        private static IEnumerable<string> ProcessLabel(Vmcmd vmcmd, Idgen idgen, string stFunc)
         {
-            throw new Exception("meg kell keresni fölötte a függvényt és annak a nevét is belevenni");
-            yield return "(" + vmcmd.StLabel + ")";
+            yield return "(" + stFunc+"$"+ vmcmd.StLabel + ")";
         }
 
         private IEnumerable<Vmcmd> EnvmcdParse(string src)

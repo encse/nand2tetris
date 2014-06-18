@@ -7,7 +7,7 @@ namespace Cmn.Vm
     {
         [Mnemonic("add")]Add,
         [Mnemonic("sub")]Sub,
-        [Mnemonic("neq")]Neg,
+        [Mnemonic("neg")]Neg,
         [Mnemonic("eq")]Eq,
         [Mnemonic("gt")]Gt,
         [Mnemonic("lt")]Lt,

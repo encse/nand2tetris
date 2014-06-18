@@ -1,75 +1,72 @@
-//Push Constant 111
+//push constant 111
 	@111
 	D=A
 	@SP
-	M=M+1
-	A=M-1
+	AM=M+1
+	A=A-1
 	M=D
-//Push Constant 333
+//push constant 333
 	@333
 	D=A
 	@SP
-	M=M+1
-	A=M-1
+	AM=M+1
+	A=A-1
 	M=D
-//Push Constant 888
+//push constant 888
 	@888
 	D=A
 	@SP
-	M=M+1
-	A=M-1
+	AM=M+1
+	A=A-1
 	M=D
-//Pop Static 8
-	@statictest.vm.8
+//pop static 8
+	@StaticTest.8
 	D=A
 	@R13
 	M=D
 	@SP
-	M=M-1
-	A=M
+	AM=M-1
 	D=M
 	@R13
 	A=M
 	M=D
-//Pop Static 3
-	@statictest.vm.3
+//pop static 3
+	@StaticTest.3
 	D=A
 	@R13
 	M=D
 	@SP
-	M=M-1
-	A=M
+	AM=M-1
 	D=M
 	@R13
 	A=M
 	M=D
-//Pop Static 1
-	@statictest.vm.1
+//pop static 1
+	@StaticTest.1
 	D=A
 	@R13
 	M=D
 	@SP
-	M=M-1
-	A=M
+	AM=M-1
 	D=M
 	@R13
 	A=M
 	M=D
-//Push Static 3
-	@statictest.vm.3
+//push static 3
+	@StaticTest.3
 	D=M
 	@SP
-	M=M+1
-	A=M-1
+	AM=M+1
+	A=A-1
 	M=D
-//Push Static 1
-	@statictest.vm.1
+//push static 1
+	@StaticTest.1
 	D=M
 	@SP
-	M=M+1
-	A=M-1
+	AM=M+1
+	A=A-1
 	M=D
-//Sub
+//sub
 	@SP
 	A=M-1
 	D=M
@@ -77,14 +74,14 @@
 	M=M-D
 	@SP
 	M=M-1
-//Push Static 8
-	@statictest.vm.8
+//push static 8
+	@StaticTest.8
 	D=M
 	@SP
-	M=M+1
-	A=M-1
+	AM=M+1
+	A=A-1
 	M=D
-//Add
+//add
 	@SP
 	A=M-1
 	D=M

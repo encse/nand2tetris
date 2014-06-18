@@ -27,7 +27,7 @@ namespace NsVmTranslator
 
             if (Directory.Exists(args[0]))
             {
-                foreach (var dpat in Directory.EnumerateDirectories(st, "*.*", SearchOption.AllDirectories).ToArray())
+                foreach (var dpat in args[0].EnCons(Directory.EnumerateDirectories(st, "*.*", SearchOption.AllDirectories)).ToArray())
                 {
                     rgfpatIn = Directory.EnumerateFiles(dpat, "*.vm").ToArray();
                     if (rgfpatIn.Any())

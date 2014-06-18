@@ -1,32 +1,29 @@
-//Push Constant 3030
+//push constant 3030
 	@3030
 	D=A
 	@SP
-	M=M+1
-	A=M-1
+	AM=M+1
+	A=A-1
 	M=D
-//Pop Pointer 0
+//pop pointer 0
 	@THIS
 	D=A
-	@0
-	D=D+A
 	@R13
 	M=D
 	@SP
-	M=M-1
-	A=M
+	AM=M-1
 	D=M
 	@R13
 	A=M
 	M=D
-//Push Constant 3040
+//push constant 3040
 	@3040
 	D=A
 	@SP
-	M=M+1
-	A=M-1
+	AM=M+1
+	A=A-1
 	M=D
-//Pop Pointer 1
+//pop pointer 1
 	@THIS
 	D=A
 	@1
@@ -34,20 +31,19 @@
 	@R13
 	M=D
 	@SP
-	M=M-1
-	A=M
+	AM=M-1
 	D=M
 	@R13
 	A=M
 	M=D
-//Push Constant 32
+//push constant 32
 	@32
 	D=A
 	@SP
-	M=M+1
-	A=M-1
+	AM=M+1
+	A=A-1
 	M=D
-//Pop This 2
+//pop this 2
 	@THIS
 	D=M
 	@2
@@ -55,20 +51,19 @@
 	@R13
 	M=D
 	@SP
-	M=M-1
-	A=M
+	AM=M-1
 	D=M
 	@R13
 	A=M
 	M=D
-//Push Constant 46
+//push constant 46
 	@46
 	D=A
 	@SP
-	M=M+1
-	A=M-1
+	AM=M+1
+	A=A-1
 	M=D
-//Pop That 6
+//pop that 6
 	@THAT
 	D=M
 	@6
@@ -76,33 +71,27 @@
 	@R13
 	M=D
 	@SP
-	M=M-1
-	A=M
+	AM=M-1
 	D=M
 	@R13
 	A=M
 	M=D
-//Push Pointer 0
+//push pointer 0
 	@THIS
-	D=A
-	@0
-	A=D+A
 	D=M
 	@SP
-	M=M+1
-	A=M-1
+	AM=M+1
+	A=A-1
 	M=D
-//Push Pointer 1
+//push pointer 1
 	@THIS
-	D=A
-	@1
-	A=D+A
+	A=A+1
 	D=M
 	@SP
-	M=M+1
-	A=M-1
+	AM=M+1
+	A=A-1
 	M=D
-//Add
+//add
 	@SP
 	A=M-1
 	D=M
@@ -110,17 +99,17 @@
 	M=D+M
 	@SP
 	M=M-1
-//Push This 2
+//push this 2
 	@THIS
 	D=M
 	@2
 	A=D+A
 	D=M
 	@SP
-	M=M+1
-	A=M-1
+	AM=M+1
+	A=A-1
 	M=D
-//Sub
+//sub
 	@SP
 	A=M-1
 	D=M
@@ -128,17 +117,17 @@
 	M=M-D
 	@SP
 	M=M-1
-//Push That 6
+//push that 6
 	@THAT
 	D=M
 	@6
 	A=D+A
 	D=M
 	@SP
-	M=M+1
-	A=M-1
+	AM=M+1
+	A=A-1
 	M=D
-//Add
+//add
 	@SP
 	A=M-1
 	D=M

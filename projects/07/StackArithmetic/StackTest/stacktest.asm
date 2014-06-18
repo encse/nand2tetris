@@ -1,304 +1,304 @@
-//Push Constant 17
+//push constant 17
 	@17
 	D=A
 	@SP
-	M=M+1
-	A=M-1
+	AM=M+1
+	A=A-1
 	M=D
-//Push Constant 17
+//push constant 17
 	@17
 	D=A
 	@SP
-	M=M+1
-	A=M-1
+	AM=M+1
+	A=A-1
 	M=D
-//Eq
+//eq
 	@SP
 	A=M-1
 	D=M
 	A=A-1
 	D=M-D
-	@l0
+	@__lbl0
 	D;JEQ
-	@l1
+	@__lbl1
 	D=0;JEQ
-(l0)
+(__lbl0)
 	D=-1
-(l1)
+(__lbl1)
 	@SP
 	M=M-1
 	A=M-1
 	M=D
-//Push Constant 17
+//push constant 17
 	@17
 	D=A
 	@SP
-	M=M+1
-	A=M-1
+	AM=M+1
+	A=A-1
 	M=D
-//Push Constant 16
+//push constant 16
 	@16
 	D=A
 	@SP
-	M=M+1
-	A=M-1
+	AM=M+1
+	A=A-1
 	M=D
-//Eq
+//eq
 	@SP
 	A=M-1
 	D=M
 	A=A-1
 	D=M-D
-	@l2
+	@__lbl2
 	D;JEQ
-	@l3
+	@__lbl3
 	D=0;JEQ
-(l2)
+(__lbl2)
 	D=-1
-(l3)
+(__lbl3)
 	@SP
 	M=M-1
 	A=M-1
 	M=D
-//Push Constant 16
+//push constant 16
 	@16
 	D=A
 	@SP
-	M=M+1
-	A=M-1
+	AM=M+1
+	A=A-1
 	M=D
-//Push Constant 17
+//push constant 17
 	@17
 	D=A
 	@SP
-	M=M+1
-	A=M-1
+	AM=M+1
+	A=A-1
 	M=D
-//Eq
+//eq
 	@SP
 	A=M-1
 	D=M
 	A=A-1
 	D=M-D
-	@l4
+	@__lbl4
 	D;JEQ
-	@l5
+	@__lbl5
 	D=0;JEQ
-(l4)
+(__lbl4)
 	D=-1
-(l5)
+(__lbl5)
 	@SP
 	M=M-1
 	A=M-1
 	M=D
-//Push Constant 892
+//push constant 892
 	@892
 	D=A
 	@SP
-	M=M+1
-	A=M-1
+	AM=M+1
+	A=A-1
 	M=D
-//Push Constant 891
+//push constant 891
 	@891
 	D=A
 	@SP
-	M=M+1
-	A=M-1
+	AM=M+1
+	A=A-1
 	M=D
-//Lt
+//lt
 	@SP
 	A=M-1
 	D=M
 	A=A-1
 	D=M-D
-	@l6
+	@__lbl6
 	D;JLT
-	@l7
+	@__lbl7
 	D=0;JEQ
-(l6)
+(__lbl6)
 	D=-1
-(l7)
+(__lbl7)
 	@SP
 	M=M-1
 	A=M-1
 	M=D
-//Push Constant 891
+//push constant 891
 	@891
 	D=A
 	@SP
-	M=M+1
-	A=M-1
+	AM=M+1
+	A=A-1
 	M=D
-//Push Constant 892
+//push constant 892
 	@892
 	D=A
 	@SP
-	M=M+1
-	A=M-1
+	AM=M+1
+	A=A-1
 	M=D
-//Lt
+//lt
 	@SP
 	A=M-1
 	D=M
 	A=A-1
 	D=M-D
-	@l8
+	@__lbl8
 	D;JLT
-	@l9
+	@__lbl9
 	D=0;JEQ
-(l8)
+(__lbl8)
 	D=-1
-(l9)
+(__lbl9)
 	@SP
 	M=M-1
 	A=M-1
 	M=D
-//Push Constant 891
+//push constant 891
 	@891
 	D=A
 	@SP
-	M=M+1
-	A=M-1
+	AM=M+1
+	A=A-1
 	M=D
-//Push Constant 891
+//push constant 891
 	@891
 	D=A
 	@SP
-	M=M+1
-	A=M-1
+	AM=M+1
+	A=A-1
 	M=D
-//Lt
+//lt
 	@SP
 	A=M-1
 	D=M
 	A=A-1
 	D=M-D
-	@l10
+	@__lbl10
 	D;JLT
-	@l11
+	@__lbl11
 	D=0;JEQ
-(l10)
+(__lbl10)
 	D=-1
-(l11)
+(__lbl11)
 	@SP
 	M=M-1
 	A=M-1
 	M=D
-//Push Constant 32767
+//push constant 32767
 	@32767
 	D=A
 	@SP
-	M=M+1
-	A=M-1
+	AM=M+1
+	A=A-1
 	M=D
-//Push Constant 32766
+//push constant 32766
 	@32766
 	D=A
 	@SP
-	M=M+1
-	A=M-1
+	AM=M+1
+	A=A-1
 	M=D
-//Gt
+//gt
 	@SP
 	A=M-1
 	D=M
 	A=A-1
 	D=M-D
-	@l12
+	@__lbl12
 	D;JGT
-	@l13
+	@__lbl13
 	D=0;JEQ
-(l12)
+(__lbl12)
 	D=-1
-(l13)
+(__lbl13)
 	@SP
 	M=M-1
 	A=M-1
 	M=D
-//Push Constant 32766
+//push constant 32766
 	@32766
 	D=A
 	@SP
-	M=M+1
-	A=M-1
+	AM=M+1
+	A=A-1
 	M=D
-//Push Constant 32767
+//push constant 32767
 	@32767
 	D=A
 	@SP
-	M=M+1
-	A=M-1
+	AM=M+1
+	A=A-1
 	M=D
-//Gt
+//gt
 	@SP
 	A=M-1
 	D=M
 	A=A-1
 	D=M-D
-	@l14
+	@__lbl14
 	D;JGT
-	@l15
+	@__lbl15
 	D=0;JEQ
-(l14)
+(__lbl14)
 	D=-1
-(l15)
+(__lbl15)
 	@SP
 	M=M-1
 	A=M-1
 	M=D
-//Push Constant 32766
+//push constant 32766
 	@32766
 	D=A
 	@SP
-	M=M+1
-	A=M-1
+	AM=M+1
+	A=A-1
 	M=D
-//Push Constant 32766
+//push constant 32766
 	@32766
 	D=A
 	@SP
-	M=M+1
-	A=M-1
+	AM=M+1
+	A=A-1
 	M=D
-//Gt
+//gt
 	@SP
 	A=M-1
 	D=M
 	A=A-1
 	D=M-D
-	@l16
+	@__lbl16
 	D;JGT
-	@l17
+	@__lbl17
 	D=0;JEQ
-(l16)
+(__lbl16)
 	D=-1
-(l17)
+(__lbl17)
 	@SP
 	M=M-1
 	A=M-1
 	M=D
-//Push Constant 57
+//push constant 57
 	@57
 	D=A
 	@SP
-	M=M+1
-	A=M-1
+	AM=M+1
+	A=A-1
 	M=D
-//Push Constant 31
+//push constant 31
 	@31
 	D=A
 	@SP
-	M=M+1
-	A=M-1
+	AM=M+1
+	A=A-1
 	M=D
-//Push Constant 53
+//push constant 53
 	@53
 	D=A
 	@SP
-	M=M+1
-	A=M-1
+	AM=M+1
+	A=A-1
 	M=D
-//Add
+//add
 	@SP
 	A=M-1
 	D=M
@@ -306,14 +306,14 @@
 	M=D+M
 	@SP
 	M=M-1
-//Push Constant 112
+//push constant 112
 	@112
 	D=A
 	@SP
-	M=M+1
-	A=M-1
+	AM=M+1
+	A=A-1
 	M=D
-//Sub
+//sub
 	@SP
 	A=M-1
 	D=M
@@ -321,11 +321,11 @@
 	M=M-D
 	@SP
 	M=M-1
-//Neg
+//neg
 	@SP
 	A=M-1
 	M=-M
-//And
+//and
 	@SP
 	A=M-1
 	D=M
@@ -333,14 +333,14 @@
 	M=D&M
 	@SP
 	M=M-1
-//Push Constant 82
+//push constant 82
 	@82
 	D=A
 	@SP
-	M=M+1
-	A=M-1
+	AM=M+1
+	A=A-1
 	M=D
-//Or
+//or
 	@SP
 	A=M-1
 	D=M
@@ -348,7 +348,7 @@
 	M=D|M
 	@SP
 	M=M-1
-//Not
+//not
 	@SP
 	A=M-1
 	M=!M

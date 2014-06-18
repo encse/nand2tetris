@@ -1,67 +1,10 @@
-//SP=256
-	@256
-	D=A
-	@0
-	M=D
-//push __lbl0
-	@__lbl0
-	D=A
-	@SP
-	M=M+1
-	A=M-1
-	M=D
-//push LCL
-	@LCL
-	D=M
-	@SP
-	M=M+1
-	A=M-1
-	M=D
-//push ARG
-	@ARG
-	D=M
-	@SP
-	M=M+1
-	A=M-1
-	M=D
-//push THIS
-	@THIS
-	D=M
-	@SP
-	M=M+1
-	A=M-1
-	M=D
-//push THAT
-	@THAT
-	D=M
-	@SP
-	M=M+1
-	A=M-1
-	M=D
-//ARG=SP-n-5
-	@SP
-	D=M
-	@5
-	D=D-A
-	@ARG
-	M=D
-//LCL=SP
-	@SP
-	D=M
-	@LCL
-	M=D
-	@Sys.init
-	D;JMP
-(__lbl0)
 //push argument 1
 	@ARG
-	D=M
-	@1
-	A=D+A
+	A=M+1
 	D=M
 	@SP
-	M=M+1
-	A=M-1
+	AM=M+1
+	A=A-1
 	M=D
 //pop pointer 1
 	@THIS
@@ -71,40 +14,32 @@
 	@R13
 	M=D
 	@SP
-	M=M-1
-	A=M
+	AM=M-1
 	D=M
 	@R13
 	A=M
 	M=D
 //push constant 0
-	@0
-	D=A
 	@SP
-	M=M+1
-	A=M-1
-	M=D
+	AM=M+1
+	A=A-1
+	M=0
 //pop that 0
 	@THAT
 	D=M
-	@0
-	D=D+A
 	@R13
 	M=D
 	@SP
-	M=M-1
-	A=M
+	AM=M-1
 	D=M
 	@R13
 	A=M
 	M=D
 //push constant 1
-	@1
-	D=A
 	@SP
-	M=M+1
-	A=M-1
-	M=D
+	AM=M+1
+	A=A-1
+	M=1
 //pop that 1
 	@THAT
 	D=M
@@ -113,28 +48,25 @@
 	@R13
 	M=D
 	@SP
-	M=M-1
-	A=M
+	AM=M-1
 	D=M
 	@R13
 	A=M
 	M=D
 //push argument 0
 	@ARG
-	D=M
-	@0
-	A=D+A
+	A=M
 	D=M
 	@SP
-	M=M+1
-	A=M-1
+	AM=M+1
+	A=A-1
 	M=D
 //push constant 2
 	@2
 	D=A
 	@SP
-	M=M+1
-	A=M-1
+	AM=M+1
+	A=A-1
 	M=D
 //sub
 	@SP
@@ -147,60 +79,50 @@
 //pop argument 0
 	@ARG
 	D=M
-	@0
-	D=D+A
 	@R13
 	M=D
 	@SP
-	M=M-1
-	A=M
+	AM=M-1
 	D=M
 	@R13
 	A=M
 	M=D
 //label MAIN_LOOP_START
-(MAIN_LOOP_START)
+($MAIN_LOOP_START)
 //push argument 0
 	@ARG
-	D=M
-	@0
-	A=D+A
+	A=M
 	D=M
 	@SP
-	M=M+1
-	A=M-1
+	AM=M+1
+	A=A-1
 	M=D
 //if-goto COMPUTE_ELEMENT
 	@SP
-	M=M-1
-	A=M
+	AM=M-1
 	D=M
 	@COMPUTE_ELEMENT
 	D;JNE
 //goto END_PROGRAM
-	@END_PROGRAM
+	@$END_PROGRAM
 	D;JMP
 //label COMPUTE_ELEMENT
-(COMPUTE_ELEMENT)
+($COMPUTE_ELEMENT)
 //push that 0
 	@THAT
-	D=M
-	@0
-	A=D+A
+	A=M
 	D=M
 	@SP
-	M=M+1
-	A=M-1
+	AM=M+1
+	A=A-1
 	M=D
 //push that 1
 	@THAT
-	D=M
-	@1
-	A=D+A
+	A=M+1
 	D=M
 	@SP
-	M=M+1
-	A=M-1
+	AM=M+1
+	A=A-1
 	M=D
 //add
 	@SP
@@ -218,29 +140,24 @@
 	@R13
 	M=D
 	@SP
-	M=M-1
-	A=M
+	AM=M-1
 	D=M
 	@R13
 	A=M
 	M=D
 //push pointer 1
 	@THIS
-	D=A
-	@1
-	A=D+A
+	A=A+1
 	D=M
 	@SP
-	M=M+1
-	A=M-1
+	AM=M+1
+	A=A-1
 	M=D
 //push constant 1
-	@1
-	D=A
 	@SP
-	M=M+1
-	A=M-1
-	M=D
+	AM=M+1
+	A=A-1
+	M=1
 //add
 	@SP
 	A=M-1
@@ -257,29 +174,24 @@
 	@R13
 	M=D
 	@SP
-	M=M-1
-	A=M
+	AM=M-1
 	D=M
 	@R13
 	A=M
 	M=D
 //push argument 0
 	@ARG
-	D=M
-	@0
-	A=D+A
+	A=M
 	D=M
 	@SP
-	M=M+1
-	A=M-1
+	AM=M+1
+	A=A-1
 	M=D
 //push constant 1
-	@1
-	D=A
 	@SP
-	M=M+1
-	A=M-1
-	M=D
+	AM=M+1
+	A=A-1
+	M=1
 //sub
 	@SP
 	A=M-1
@@ -291,19 +203,16 @@
 //pop argument 0
 	@ARG
 	D=M
-	@0
-	D=D+A
 	@R13
 	M=D
 	@SP
-	M=M-1
-	A=M
+	AM=M-1
 	D=M
 	@R13
 	A=M
 	M=D
 //goto MAIN_LOOP_START
-	@MAIN_LOOP_START
+	@$MAIN_LOOP_START
 	D;JMP
 //label END_PROGRAM
-(END_PROGRAM)
+($END_PROGRAM)
