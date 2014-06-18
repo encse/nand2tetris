@@ -9,15 +9,18 @@ namespace Cmn.Compiler
     public class VMTranslator
     {
 
+        private string lblFunCall;
+        private string lblReturn;
+
         public class Idgen
         {
             private int i;
 
             public string filn;
 
-            public string Id()
+            public string Id(string prefix="lbl")
             {
-                return "__lbl" + i++;
+                return "__{0}_{1}".StFormat(prefix, i++);
             }
 
             public string Static(int i)
@@ -31,11 +34,15 @@ namespace Cmn.Compiler
             }
         }
 
+   
+
         public IEnumerable<string> ToAsm(IEnumerable<string> rgfpat)
         {
             var idgen = new Idgen();
-            //foreach (var st in Indent(Bootstrap(idgen)))
-            //    yield return st;
+
+            foreach (var st in Indent(Bootstrap(idgen)))
+                yield return st;
+            
             
             foreach (var fpat in rgfpat)
             {
@@ -48,26 +55,41 @@ namespace Cmn.Compiler
             
         }
 
+
         private IEnumerable<string> Bootstrap(Idgen idgen)
         {
+            lblFunCall = idgen.Id("funcall");
+            lblReturn = idgen.Id("return");
+            var lblEnd = idgen.Id("end");
+
             yield return "//SP=256";
             yield return "@256";
             yield return "D=A";
             yield return "@0";
             yield return "M=D";
+
             idgen.filn = "Sys.vm";
             foreach (var st in ProcessCall(new Vmcmd(Kcmd.Call, Ksegment.Nil, 0, "Sys.init"), idgen, null))
                 yield return st;
             idgen.filn = null;
 
+            yield return "(" + lblEnd + ")";
+            yield return "@" + lblEnd;
+            yield return "0;JMP";
+
+            foreach (var st in Indent(GenerateFunCall()))
+                yield return st;
+    
+            foreach (var st in Indent(GenerateReturn()))
+                yield return st;
         }
 
         public IEnumerable<string> Indent(IEnumerable<string> src)
         {
             foreach (var st in src)
             {
-                //if (st.StartsWith("//"))
-                //    continue;
+                if (st.StartsWith("//"))
+                    continue;
                 
                 if (!st.StartsWith("(") && !st.StartsWith("//"))
                     yield return "\t" + st;
@@ -129,8 +151,10 @@ namespace Cmn.Compiler
             }
         }
 
-        private static IEnumerable<string> ProcessReturn(Vmcmd vmcmd, Idgen idgen, string stFunc)
+        private IEnumerable<string> GenerateReturn()
         {
+            yield return "({0})".StFormat(lblReturn);
+
             yield return "//FRAME = LCL";
             yield return "@LCL";
             yield return "D=M";
@@ -175,6 +199,12 @@ namespace Cmn.Compiler
             yield return "D;JMP";
         }
 
+        private IEnumerable<string> ProcessReturn(Vmcmd vmcmd, Idgen idgen, string stFunc)
+        {
+            yield return "@" + lblReturn;
+            yield return "0;JMP";
+        }
+
         private static IEnumerable<string> ProcessFunction(Vmcmd vmcmd, Idgen idgen, string stFunc)
         {
             yield return "(" + idgen.Fun(vmcmd.StFn) + ")";
@@ -189,20 +219,22 @@ namespace Cmn.Compiler
             }
         }
 
-        private static IEnumerable<string> ProcessCall(Vmcmd vmcmd, Idgen idgen, string stFunc)
-        {
-            var lblNext = idgen.Id();
 
-            yield return "//push " + lblNext;
-            yield return "@" + lblNext;
-            yield return "D=A";
+
+        private IEnumerable<string> GenerateFunCall()
+        {
+            
+            yield return "({0})".StFormat(lblFunCall);
+            //r14: hány argumentum van a veremben
+            //r15: hova kell ugrani
+            //D: hova kell visszatérni
 
             yield return "@SP";
             yield return "AM=M+1";
             yield return "A=A-1";
             yield return "M=D";
 
-            foreach (var lbl in new[] {"LCL", "ARG", "THIS", "THAT"})
+            foreach (var lbl in new[] { "LCL", "ARG", "THIS", "THAT" })
             {
                 yield return "//push " + lbl;
                 yield return "@" + lbl;
@@ -217,8 +249,12 @@ namespace Cmn.Compiler
             yield return "//ARG=SP-n-5";
             yield return "@SP";
             yield return "D=M";
-            yield return "@" + (vmcmd.I + 5);
+
+            yield return "@R14";
+            yield return "D=D-M";
+            yield return "@5";
             yield return "D=D-A";
+
             yield return "@ARG";
             yield return "M=D";
 
@@ -228,7 +264,32 @@ namespace Cmn.Compiler
             yield return "@LCL";
             yield return "M=D";
 
+            yield return "@R15";
+            yield return "A=M";
+            yield return "D;JMP";
+        }
+
+        private IEnumerable<string> ProcessCall(Vmcmd vmcmd, Idgen idgen, string stFunc)
+        {
+            var lblNext = idgen.Id("return");
+
+            yield return "//r14: hány argumentum van a veremben";
+            yield return "//r15: hova kell ugrani";
+            yield return "//D: hova kell visszatérni";
+            yield return "@" + vmcmd.I;
+            yield return "D=A";
+            yield return "@R14";
+            yield return "M=D";
+
             yield return "@" + idgen.Fun(vmcmd.StFn);
+            yield return "D=A";
+            yield return "@R15";
+            yield return "M=D";
+            
+            yield return "@" + lblNext;
+            yield return "D=A";
+
+            yield return "@" + lblFunCall;
             yield return "D;JMP";
 
             yield return "(" + lblNext + ")";
