@@ -15,6 +15,10 @@ namespace Cmn.Compiler
             this.icol = icol;
         }
 
+        public Erparse(AstNode node, string st) : base(st)
+        {
+        }
+
         public override string Message
         {
             get

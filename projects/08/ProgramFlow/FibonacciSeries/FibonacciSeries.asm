@@ -1,4 +1,59 @@
-//push Argument 1
+//SP=256
+	@256
+	D=A
+	@0
+	M=D
+//push __lbl0
+	@__lbl0
+	D=A
+	@SP
+	M=M+1
+	A=M-1
+	M=D
+//push LCL
+	@LCL
+	D=M
+	@SP
+	M=M+1
+	A=M-1
+	M=D
+//push ARG
+	@ARG
+	D=M
+	@SP
+	M=M+1
+	A=M-1
+	M=D
+//push THIS
+	@THIS
+	D=M
+	@SP
+	M=M+1
+	A=M-1
+	M=D
+//push THAT
+	@THAT
+	D=M
+	@SP
+	M=M+1
+	A=M-1
+	M=D
+//ARG=SP-n-5
+	@SP
+	D=M
+	@5
+	D=D-A
+	@ARG
+	M=D
+//LCL=SP
+	@SP
+	D=M
+	@LCL
+	M=D
+	@Sys.init
+	D;JMP
+(__lbl0)
+//push argument 1
 	@ARG
 	D=M
 	@1
@@ -8,7 +63,7 @@
 	M=M+1
 	A=M-1
 	M=D
-//pop Pointer 1
+//pop pointer 1
 	@THIS
 	D=A
 	@1
@@ -22,14 +77,14 @@
 	@R13
 	A=M
 	M=D
-//push Constant 0
+//push constant 0
 	@0
 	D=A
 	@SP
 	M=M+1
 	A=M-1
 	M=D
-//pop That 0
+//pop that 0
 	@THAT
 	D=M
 	@0
@@ -43,14 +98,14 @@
 	@R13
 	A=M
 	M=D
-//push Constant 1
+//push constant 1
 	@1
 	D=A
 	@SP
 	M=M+1
 	A=M-1
 	M=D
-//pop That 1
+//pop that 1
 	@THAT
 	D=M
 	@1
@@ -64,7 +119,7 @@
 	@R13
 	A=M
 	M=D
-//push Argument 0
+//push argument 0
 	@ARG
 	D=M
 	@0
@@ -74,7 +129,7 @@
 	M=M+1
 	A=M-1
 	M=D
-//push Constant 2
+//push constant 2
 	@2
 	D=A
 	@SP
@@ -89,7 +144,7 @@
 	M=M-D
 	@SP
 	M=M-1
-//pop Argument 0
+//pop argument 0
 	@ARG
 	D=M
 	@0
@@ -105,7 +160,7 @@
 	M=D
 //label MAIN_LOOP_START
 (MAIN_LOOP_START)
-//push Argument 0
+//push argument 0
 	@ARG
 	D=M
 	@0
@@ -127,7 +182,7 @@
 	D;JMP
 //label COMPUTE_ELEMENT
 (COMPUTE_ELEMENT)
-//push That 0
+//push that 0
 	@THAT
 	D=M
 	@0
@@ -137,7 +192,7 @@
 	M=M+1
 	A=M-1
 	M=D
-//push That 1
+//push that 1
 	@THAT
 	D=M
 	@1
@@ -155,7 +210,7 @@
 	M=D+M
 	@SP
 	M=M-1
-//pop That 2
+//pop that 2
 	@THAT
 	D=M
 	@2
@@ -169,7 +224,7 @@
 	@R13
 	A=M
 	M=D
-//push Pointer 1
+//push pointer 1
 	@THIS
 	D=A
 	@1
@@ -179,7 +234,7 @@
 	M=M+1
 	A=M-1
 	M=D
-//push Constant 1
+//push constant 1
 	@1
 	D=A
 	@SP
@@ -194,7 +249,7 @@
 	M=D+M
 	@SP
 	M=M-1
-//pop Pointer 1
+//pop pointer 1
 	@THIS
 	D=A
 	@1
@@ -208,7 +263,7 @@
 	@R13
 	A=M
 	M=D
-//push Argument 0
+//push argument 0
 	@ARG
 	D=M
 	@0
@@ -218,7 +273,7 @@
 	M=M+1
 	A=M-1
 	M=D
-//push Constant 1
+//push constant 1
 	@1
 	D=A
 	@SP
@@ -233,7 +288,7 @@
 	M=M-D
 	@SP
 	M=M-1
-//pop Argument 0
+//pop argument 0
 	@ARG
 	D=M
 	@0

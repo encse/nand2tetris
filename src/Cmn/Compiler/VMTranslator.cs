@@ -429,6 +429,7 @@ namespace Cmn.Compiler
 
         private static IEnumerable<string> ProcessIfGoto(Vmcmd vmcmd, Idgen idgen)
         {
+            throw new Exception("meg kell keresni fölötte a függvényt és annak a nevét is belevenni");
             yield return "@SP";
             yield return "M=M-1";
             yield return "A=M";
@@ -440,12 +441,14 @@ namespace Cmn.Compiler
 
         private static IEnumerable<string> ProcessGoto(Vmcmd vmcmd, Idgen idgen)
         {
+            throw new Exception("meg kell keresni fölötte a függvényt és annak a nevét is belevenni");
             yield return "@" + vmcmd.StLabel;
             yield return "D;JMP";
         }
 
         private static IEnumerable<string> ProcessLabel(Vmcmd vmcmd, Idgen idgen)
         {
+            throw new Exception("meg kell keresni fölötte a függvényt és annak a nevét is belevenni");
             yield return "(" + vmcmd.StLabel + ")";
         }
 

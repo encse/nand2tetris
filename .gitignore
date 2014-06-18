@@ -28,6 +28,6 @@
 
 /projects/05/*.out
 
-/src/*.user
-
-/src/Tests/*.user
+/src/**/*.user
+/src/**/*.suo
+/src/**/Debug

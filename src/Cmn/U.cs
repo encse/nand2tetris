@@ -156,6 +156,13 @@ namespace Cmn
         }
 
 
+        public static IEnumerable<T> EnEnsure<T>(this IEnumerable<T> rgt)
+        {
+            return rgt ?? Enumerable.Empty<T>();
+        }
+
+
+
         public static IEnumerable<T> EnCons<T>(this T tHead)
         {
             yield return tHead;

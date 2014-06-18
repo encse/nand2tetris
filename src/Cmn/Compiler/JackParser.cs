@@ -1,5 +1,6 @@
 using System.Linq;
 using System.Collections.Generic;
+using System.Threading;
 
 namespace Cmn.Compiler
 {
@@ -63,13 +64,21 @@ namespace Cmn.Compiler
                 var lexer = new JackLexer();
                 rgtoken = lexer.Entoken(st).ToList();
                 itoken = 0;
-                return ParseClass();
+                return Fill(null, ParseClass());
             }
             catch (Erparse er)
             {
                 er.StSrc = st;
                 throw;
             }
+        }
+
+        private AstNode Fill(AstNode nodeParent, AstNode astNode)
+        {
+            astNode.NodeParent = nodeParent;
+            foreach (var astNodeChild in astNode.EnastNodeChildren())
+                Fill(astNode, astNodeChild);
+            return astNode;
         }
 
         private AstClass ParseClass()
@@ -97,8 +106,8 @@ namespace Cmn.Compiler
 
                 subroutine.Ksubroutine = 
                     FCurrent(Ktoken.Constructor) ? Ksubroutine.Constructor :
-                    FCurrent(Ktoken.Function) ? Ksubroutine.Function : 
-                                                Ksubroutine.Method;
+                    FCurrent(Ktoken.Function) ? Ksubroutine.StaticFunction : 
+                                                Ksubroutine.MemberFunction;
                 
                 NextToken();
 
@@ -108,7 +117,7 @@ namespace Cmn.Compiler
                 subroutine.RgParam = ParseParamDefList().ToArray();
 
                 Expect(Ktoken.Lbrace);
-                subroutine.RgVarDecl = ParseVarDeclList().ToArray();
+                subroutine.RgVarDeclDecl = ParseVarDeclList().ToArray();
                 subroutine.Body = ParseStatementList().ToArray();
                 Expect(Ktoken.Rbrace);
 
@@ -219,19 +228,24 @@ namespace Cmn.Compiler
 
         private AstExpr ParseExpr()
         {
-            var term = ParseTerm();
-
-            if (Accept(Ktoken.Plus)) return new AstBinOp {KBinop = KBinop.Plus, exprLeft = term, exprRight = ParseExpr()};
-            if (Accept(Ktoken.Minus)) return new AstBinOp {KBinop = KBinop.Minus, exprLeft = term, exprRight = ParseExpr()};
-            if (Accept(Ktoken.Asterix)) return new AstBinOp {KBinop = KBinop.Mul, exprLeft = term, exprRight = ParseExpr()};
-            if (Accept(Ktoken.Slash)) return new AstBinOp {KBinop = KBinop.Div, exprLeft = term, exprRight = ParseExpr()};
-            if (Accept(Ktoken.Or)) return new AstBinOp {KBinop = KBinop.Or, exprLeft = term, exprRight = ParseExpr()};
-            if (Accept(Ktoken.And)) return new AstBinOp {KBinop = KBinop.And, exprLeft = term, exprRight = ParseExpr()};
-            if (Accept(Ktoken.Eq)) return new AstBinOp {KBinop = KBinop.Eq, exprLeft = term, exprRight = ParseExpr()};
-            if (Accept(Ktoken.Gt)) return new AstBinOp {KBinop = KBinop.Gt, exprLeft = term, exprRight = ParseExpr()};
-            if (Accept(Ktoken.Lt)) return new AstBinOp {KBinop = KBinop.Lt, exprLeft = term, exprRight = ParseExpr()};
             
-            return term;
+            var astResult = ParseTerm();
+
+            while (true)
+            {
+                if (Accept(Ktoken.Plus)) astResult = new AstBinOp { KBinop = KBinop.Plus, exprLeft = astResult, exprRight = ParseTerm() };
+                else if (Accept(Ktoken.Minus)) astResult = new AstBinOp { KBinop = KBinop.Minus, exprLeft = astResult, exprRight = ParseTerm() };
+                else if (Accept(Ktoken.Asterix)) astResult = new AstBinOp { KBinop = KBinop.Mul, exprLeft = astResult, exprRight = ParseTerm() };
+                else if (Accept(Ktoken.Slash)) astResult = new AstBinOp { KBinop = KBinop.Div, exprLeft = astResult, exprRight = ParseTerm() };
+                else if (Accept(Ktoken.Or)) astResult = new AstBinOp { KBinop = KBinop.Or, exprLeft = astResult, exprRight = ParseTerm() };
+                else if (Accept(Ktoken.And)) astResult = new AstBinOp { KBinop = KBinop.And, exprLeft = astResult, exprRight = ParseTerm() };
+                else if (Accept(Ktoken.Eq)) astResult = new AstBinOp { KBinop = KBinop.Eq, exprLeft = astResult, exprRight = ParseTerm() };
+                else if (Accept(Ktoken.Gt)) astResult = new AstBinOp { KBinop = KBinop.Gt, exprLeft = astResult, exprRight = ParseTerm() };
+                else if (Accept(Ktoken.Lt)) astResult = new AstBinOp { KBinop = KBinop.Lt, exprLeft = astResult, exprRight = ParseTerm() };
+                else
+                    break;
+            }
+            return astResult;
         }
 
         private AstExpr ParseTerm()
@@ -250,7 +264,7 @@ namespace Cmn.Compiler
 
             if (Accept(Ktoken.Minus)) return new AstUnOp {Kunop = KUnop.Minus, expr = ParseTerm()};
             
-            if (Accept(Ktoken.Tilde)) return new AstUnOp {Kunop = KUnop.Minus, expr = ParseTerm()};
+            if (Accept(Ktoken.Tilde)) return new AstUnOp {Kunop = KUnop.Not, expr = ParseTerm()};
 
             if (Accept(Ktoken.Lparen))
             {
@@ -303,7 +317,7 @@ namespace Cmn.Compiler
             }
         }
 
-        private IEnumerable<AstVar> ParseParamDefList()
+        private IEnumerable<AstVarDecl> ParseParamDefList()
         {
             Expect(Ktoken.Lparen);
 
@@ -314,10 +328,11 @@ namespace Cmn.Compiler
             {
                 var type = ParseType();
                 var stName = Expect(Ktoken.Id).St;
-                yield return new AstVar
+                yield return new AstVarDecl
                 {
                     Type = type,
-                    StName = stName
+                    StName = stName,
+                    FLocal = false
                 };
 
                 if (Accept(Ktoken.Comma))
@@ -346,7 +361,7 @@ namespace Cmn.Compiler
         }
 
         
-        private IEnumerable<AstVar> ParseVarDeclList()
+        private IEnumerable<AstVarDecl> ParseVarDeclList()
         {
             while (Accept(Ktoken.Var))
             {
@@ -354,7 +369,7 @@ namespace Cmn.Compiler
                 do
                 {
                     var stName = Expect(Ktoken.Id).St;
-                    yield return new AstVar { Type = type, StName = stName };
+                    yield return new AstVarDecl { Type = type, StName = stName, FLocal = true};
                 } while (Accept(Ktoken.Comma));
 
                 Expect(Ktoken.Semicolon);
