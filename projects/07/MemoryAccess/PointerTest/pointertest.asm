@@ -6,15 +6,10 @@
 	A=A-1
 	M=D
 //pop pointer 0
-	@THIS
-	D=A
-	@R13
-	M=D
 	@SP
 	AM=M-1
 	D=M
-	@R13
-	A=M
+	@THIS
 	M=D
 //push constant 3040
 	@3040
@@ -24,17 +19,11 @@
 	A=A-1
 	M=D
 //pop pointer 1
-	@THIS
-	D=A
-	@1
-	D=D+A
-	@R13
-	M=D
 	@SP
 	AM=M-1
 	D=M
-	@R13
-	A=M
+	@THIS
+	A=A+1
 	M=D
 //push constant 32
 	@32

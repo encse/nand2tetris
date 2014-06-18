@@ -4,14 +4,10 @@
 	A=A-1
 	M=0
 //pop local 0
-	@LCL
-	D=M
-	@R13
-	M=D
 	@SP
 	AM=M-1
 	D=M
-	@R13
+	@LCL
 	A=M
 	M=D
 //label LOOP_START
@@ -26,7 +22,6 @@
 	M=D
 //push local 0
 	@LCL
-	D=M
 	A=M
 	D=M
 	@SP
@@ -42,14 +37,10 @@
 	@SP
 	M=M-1
 //pop local 0
-	@LCL
-	D=M
-	@R13
-	M=D
 	@SP
 	AM=M-1
 	D=M
-	@R13
+	@LCL
 	A=M
 	M=D
 //push argument 0
@@ -74,14 +65,10 @@
 	@SP
 	M=M-1
 //pop argument 0
-	@ARG
-	D=M
-	@R13
-	M=D
 	@SP
 	AM=M-1
 	D=M
-	@R13
+	@ARG
 	A=M
 	M=D
 //push argument 0
@@ -96,11 +83,10 @@
 	@SP
 	AM=M-1
 	D=M
-	@LOOP_START
+	@$LOOP_START
 	D;JNE
 //push local 0
 	@LCL
-	D=M
 	A=M
 	D=M
 	@SP

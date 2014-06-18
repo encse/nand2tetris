@@ -7,17 +7,11 @@
 	A=A-1
 	M=D
 //pop pointer 1
-	@THIS
-	D=A
-	@1
-	D=D+A
-	@R13
-	M=D
 	@SP
 	AM=M-1
 	D=M
-	@R13
-	A=M
+	@THIS
+	A=A+1
 	M=D
 //push constant 0
 	@SP
@@ -25,14 +19,10 @@
 	A=A-1
 	M=0
 //pop that 0
-	@THAT
-	D=M
-	@R13
-	M=D
 	@SP
 	AM=M-1
 	D=M
-	@R13
+	@THAT
 	A=M
 	M=D
 //push constant 1
@@ -41,17 +31,11 @@
 	A=A-1
 	M=1
 //pop that 1
-	@THAT
-	D=M
-	@1
-	D=D+A
-	@R13
-	M=D
 	@SP
 	AM=M-1
 	D=M
-	@R13
-	A=M
+	@THAT
+	A=M+1
 	M=D
 //push argument 0
 	@ARG
@@ -77,14 +61,10 @@
 	@SP
 	M=M-1
 //pop argument 0
-	@ARG
-	D=M
-	@R13
-	M=D
 	@SP
 	AM=M-1
 	D=M
-	@R13
+	@ARG
 	A=M
 	M=D
 //label MAIN_LOOP_START
@@ -101,7 +81,7 @@
 	@SP
 	AM=M-1
 	D=M
-	@COMPUTE_ELEMENT
+	@$COMPUTE_ELEMENT
 	D;JNE
 //goto END_PROGRAM
 	@$END_PROGRAM
@@ -167,17 +147,11 @@
 	@SP
 	M=M-1
 //pop pointer 1
-	@THIS
-	D=A
-	@1
-	D=D+A
-	@R13
-	M=D
 	@SP
 	AM=M-1
 	D=M
-	@R13
-	A=M
+	@THIS
+	A=A+1
 	M=D
 //push argument 0
 	@ARG
@@ -201,14 +175,10 @@
 	@SP
 	M=M-1
 //pop argument 0
-	@ARG
-	D=M
-	@R13
-	M=D
 	@SP
 	AM=M-1
 	D=M
-	@R13
+	@ARG
 	A=M
 	M=D
 //goto MAIN_LOOP_START

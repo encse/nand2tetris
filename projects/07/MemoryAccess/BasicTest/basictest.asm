@@ -6,14 +6,10 @@
 	A=A-1
 	M=D
 //pop local 0
-	@LCL
-	D=M
-	@R13
-	M=D
 	@SP
 	AM=M-1
 	D=M
-	@R13
+	@LCL
 	A=M
 	M=D
 //push constant 21
@@ -44,17 +40,11 @@
 	A=M
 	M=D
 //pop argument 1
-	@ARG
-	D=M
-	@1
-	D=D+A
-	@R13
-	M=D
 	@SP
 	AM=M-1
 	D=M
-	@R13
-	A=M
+	@ARG
+	A=M+1
 	M=D
 //push constant 36
 	@36
@@ -138,7 +128,6 @@
 	M=D
 //push local 0
 	@LCL
-	D=M
 	A=M
 	D=M
 	@SP
