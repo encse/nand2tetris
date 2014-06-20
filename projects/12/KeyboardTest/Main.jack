@@ -12,6 +12,7 @@ class Main {
     	var String s;
     	var int i;
     	var boolean ok;
+		var String foo;
     
         let ok = false;
         do Output.printString("keyPressed test:");
@@ -58,9 +59,11 @@ class Main {
         do Output.println();
         do Output.printString("(Verify echo and usage of 'backspace')");
         do Output.println();
+		let foo = "Please type 'JACK' and press enter: ";
+    	    
         while (~ok) {
-    	    let s = Keyboard.readLine("Please type 'JACK' and press enter: ");
-
+			let s = Keyboard.readLine(foo);
+			
 	    if (s.length() = 4) {
 	        if ((s.charAt(0) = 74) & (s.charAt(1) = 65) & (s.charAt(2) = 67) & (s.charAt(3) = 75)) {
 	            do Output.printString("ok");
@@ -68,6 +71,7 @@ class Main {
    	            let ok = true;
    	        }
     	    }
+			do s.dispose();
     	}
 
 	let ok = false;

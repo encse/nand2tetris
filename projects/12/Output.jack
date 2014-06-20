@@ -11,12 +11,18 @@
  * (including 2 space pixels).
  */
 class Output {
-
+	static int irow, icol;
     // Character map for printing on the left of a screen word
     static Array charMaps; 
+	static int screen;
 
     /** Initializes the screen and locates the cursor at the screen's top-left. */
     function void init() {
+		let irow = 0;
+		let icol = 0;
+		let screen = 16384;
+		do Output.initMap();
+		return;
     }
 
     // Initalizes the character map array
@@ -65,7 +71,7 @@ class Output {
         do Output.create(64,30,51,51,59,59,59,27,3,30,0,0);  // @
         do Output.create(63,30,51,51,24,12,12,0,12,12,0,0);  // ?
 
-        do Output.create(65,0,0,0,0,0,0,0,0,0,0,0);          // A ** TO BE FILLED **
+        do Output.create(65,12,30,51,51,31,51,51,51,51,0,0); // A 
         do Output.create(66,31,51,51,51,31,51,51,51,31,0,0); // B
         do Output.create(67,28,54,35,3,3,3,35,54,28,0,0);    // C
         do Output.create(68,15,27,51,51,51,51,51,27,15,0,0); // D
@@ -104,7 +110,7 @@ class Output {
         do Output.create(99,0,0,0,30,51,3,3,51,30,0,0);        // c
         do Output.create(100,48,48,48,60,54,51,51,51,30,0,0);  // d
         do Output.create(101,0,0,0,30,51,63,3,51,30,0,0);      // e
-        do Output.create(102,28,54,38,6,15,6,6,6,15,0,0);      // f
+		do Output.create(102,28,54,38,6,15,6,6,6,15,0,0);      // f
         do Output.create(103,0,0,30,51,51,51,62,48,51,30,0);   // g
         do Output.create(104,3,3,3,27,55,51,51,51,51,0,0);     // h
         do Output.create(105,12,12,0,14,12,12,12,12,30,0,0);   // i
@@ -136,10 +142,11 @@ class Output {
 
     // Creates a character map array of the given char index with the given values.
     function void create(int index, int a, int b, int c, int d, int e,
-		         int f, int g, int h, int i, int j, int k) {
-	var Array map;
+		         int f, int g, int h, int i, int j, int k) 
+	{
+		var Array map;	
 
-	let map = Array.new(11);
+		let map = Array.new(11);
         let charMaps[index] = map;
 
         let map[0] = a;
@@ -171,28 +178,125 @@ class Output {
     /** Moves the cursor to the j’th column of the i’th row,
      *  and erases the character that was there. */
     function void moveCursor(int i, int j) {
+		if( (j<0) | (j>63) | (i<0) | (i > 22))
+		{
+			return;
+		}
+			
+		let irow = i;
+		let icol = j;
+		do Output.printCharI(32);
+		return;
     }
 
     /** Prints c at the cursor location and advances the cursor one
      *  column forward. */
     function void printChar(char c) {
+		do Output.printCharI(c);
+		
+		if(icol < 63){
+			let icol = icol+1;
+		}
+		else
+		{
+			let icol =0;
+				
+			if(irow < 22){
+				let irow = irow+1;
+			}
+			else {
+				let irow = 0;
+			}
+		}
+		return;
+	}
+	
+	function void printCharI(char c) {
+		var Array map;
+		var int ptr;
+		var int i;
+		var int peek;
+		var boolean fOddCol;
+		let map = Output.getMap(c);
+		let i = 0;
+		let ptr = screen + (irow * 11 * 32) + (icol * 8 / 16);
+		
+		let fOddCol = icol - (icol / 2 * 2) = 1;
+		
+		while(i<11) {
+			let peek = Memory.peek(ptr);
+			if(fOddCol){
+				do Memory.poke(ptr, (peek & 255) + (map[i] * 256));
+			}
+			else{
+				do Memory.poke(ptr, (peek & ~255) + map[i]);
+			}
+			
+			let ptr = ptr + 32;
+			let i = i+1;
+		}
+		
+		return;
     }
 
     /** Prints s starting at the cursor location, and advances the
      *  cursor appropriately. */
-    function void printString(String s) {
+    function void printString(String st) {
+		var int cch;
+		var int ich;
+		let cch = st.length();
+		let ich = 0;
+		while(ich < cch){
+			do Output.printChar(st.charAt(ich));
+			let ich = ich + 1;
+		}
+		return;
     }
 
     /** Prints i starting at the cursor location, and advances the
      *  cursor appropriately. */
     function void printInt(int i) {
+		var String st;
+		let st = String.new(16);
+		do st.setInt(i);
+		do Output.printString(st);
+		do st.dispose();
+		return;
     }
 
     /** Advances the cursor to the beginning of the next line. */
     function void println() {
+		let icol = 0;
+		if(irow < 22){
+			let irow = irow+1;
+		}
+		else{
+			let irow = 0;
+		}
+		
+		return;
     }
 
     /** Moves the cursor one column back. */
     function void backSpace() {
+		
+		if(icol > 0) {
+			let icol = icol - 1;
+		}
+		else{
+			let icol = 63;
+				
+			if (irow > 0) 
+			{
+				let irow = irow - 1;
+			}
+			else
+			{
+				let irow = 22;
+			}
+		}
+		
+
+		return;
     }
 }
