@@ -71,7 +71,7 @@ class Math {
 			{
 				if ( (x<0) & (y<0))
 				{
-					return Math.divideI(x,y);
+					return Math.divideI(-x,-y);
 				}
 				else 
 				{
@@ -93,7 +93,7 @@ class Math {
 	
 	function int divideI(int x, int y) {
 		var int q;
-		if (y > x) 
+		if ((y > x) | (y<0)) 
 		{
 			return 0;
 		}
